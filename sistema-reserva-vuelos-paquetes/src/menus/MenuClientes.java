@@ -22,20 +22,30 @@ public class MenuClientes {
                     String nombre = Ingreso.leerString("Ingrese nombre:");
                     String apellido = Ingreso.leerString("Ingrese apellido:");
                     String dni = Ingreso.leerString("Ingrese DNI:");
-                    Persona.cargarPersona(nombre, apellido, dni);
+                    //Persona.cargarPersona(nombre, apellido, dni);
                     break;
                 case 2:
+                // Verificar si hay clientes registrados antes de editar
+                    //if (Persona.getCantidad() == 0) {
+                      //  JOptionPane.showMessageDialog(null, "No hay clientes registrados.");
+                        //break;
+                    //}
                     String dniEditar = Ingreso.leerString("Ingrese DNI del cliente a editar:");
                     String nuevoNombre = Ingreso.leerString("Ingrese nuevo nombre:");
                     String nuevoApellido = Ingreso.leerString("Ingrese nuevo apellido:");
-                    Persona.editarPersona(dniEditar, nuevoNombre, nuevoApellido);
+                    //Persona.editarPersona(dniEditar, nuevoNombre, nuevoApellido);
                     break;
                 case 3:
+                // Verificar si hay clientes registrados antes de eliminar
+                    // if (Persona.getCantidad() == 0) {
+                    //     JOptionPane.showMessageDialog(null, "No hay clientes registrados.");
+                    //     break;
+                    // }
                     String dniEliminar = Ingreso.leerString("Ingrese DNI del cliente a eliminar:");
-                    Persona.eliminarPersona(dniEliminar);
+                    //Persona.eliminarPersona(dniEliminar);
                     break;
                 case 4:
-                    Persona.verTodasLasPersonas();
+                    //Persona.verTodasLasPersonas();
                     break;
                 case 5:
                     JOptionPane.showMessageDialog(null, "Saliendo del menú de clientes.");
@@ -45,5 +55,4 @@ public class MenuClientes {
             }
         } while (opcion != 5);
     }
-
 }

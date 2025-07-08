@@ -1,6 +1,10 @@
 package utils.inputOutputJOP;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerDateModel;
 
 public class Ingreso {
 
@@ -113,28 +117,35 @@ public class Ingreso {
     }
 
     public static double leerDoublePositivo(String cMens) {
-        boolean repetir;
-        double n = 0.0;
+         boolean repetir;
+    double n = 0.0;
 
-        do {
-            repetir = false;
-            try {
-                String input = JOptionPane.showInputDialog(null, cMens);
-                if (input == null) System.exit(0); 
-                n = Double.parseDouble(input.trim());
-                if (n <= 0) {
-                    throw new IllegalArgumentException("Debe ingresar un número decimal mayor que cero.");
-                }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, e.getMessage());
-                repetir = true;
+    do {
+        repetir = false;
+        try {
+            String input = JOptionPane.showInputDialog(null, cMens);
+            if (input == null) System.exit(0);
+            input = input.trim();
+            if (input.isEmpty()) {
+                throw new IllegalArgumentException("Debe ingresar un número decimal mayor que cero.");
             }
-        } while (repetir);
+            n = Double.parseDouble(input);
+            if (n <= 0) {
+                throw new IllegalArgumentException("Debe ingresar un número decimal mayor que cero.");
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Debe ingresar solo números (use punto para decimales).");
+            repetir = true;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            repetir = true;
+        }
+    } while (repetir);
 
-        return n;
+    return n;
     }
 
-     public static int nOpciones(String cMensaje, String[] opc, String cTitulo) {
+    public static int nOpciones(String cMensaje, String[] opc, String cTitulo) {
         int seleccion = -1;
         boolean valido = false;
         do {
@@ -150,5 +161,49 @@ public class Ingreso {
             }
         } while (!valido);
         return seleccion;
+    }
+
+
+    public static String seleccionarFechaConSpinner(String mensaje) {
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    sdf.setLenient(false);
+    String fechaFormateada = null;
+    boolean repetir;
+    do {
+        repetir = false;
+        JSpinner spinner = new JSpinner(new SpinnerDateModel());
+        spinner.setEditor(new JSpinner.DateEditor(spinner, "dd/MM/yyyy"));
+        int opcion = JOptionPane.showOptionDialog(
+            null,
+            new Object[]{mensaje, spinner},
+            "Seleccionar fecha",
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            null,
+            null
+        );
+        if (opcion == JOptionPane.OK_OPTION) {
+            Date fechaSeleccionada = (Date) spinner.getValue();
+            // Obtener la fecha actual sin hora
+            Date hoy = new Date();
+            try {
+                Date soloFechaHoy = sdf.parse(sdf.format(hoy));
+                Date soloFechaSeleccionada = sdf.parse(sdf.format(fechaSeleccionada));
+                if (soloFechaSeleccionada.before(soloFechaHoy)) {
+                    JOptionPane.showMessageDialog(null, "La fecha debe ser igual o posterior a hoy.");
+                    repetir = true;
+                } else {
+                    fechaFormateada = sdf.format(fechaSeleccionada);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Error al validar la fecha.");
+                repetir = true;
+            }
+        } else {
+            System.exit(0);
+        }
+    } while (repetir);
+    return fechaFormateada;
     }
 }
