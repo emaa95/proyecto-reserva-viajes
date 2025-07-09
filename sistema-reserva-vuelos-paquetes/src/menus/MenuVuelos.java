@@ -26,10 +26,11 @@ public class MenuVuelos {
                         }
                         String origen = Ingreso.leerString("Ingrese origen:");
                         String destino = Ingreso.leerString("Ingrese destino:");
-                        String fechaSalida = Ingreso.seleccionarFechaConSpinner("Ingrese fecha de salida:");
+                        //String fechaSalida = Ingreso.seleccionarFechaConSpinner("Ingrese fecha de salida:");
+                        String hora = Ingreso.seleccionarHoraConSpinner("Ingrese la hora de salida:");
                         double precio = Ingreso.leerDoublePositivo("Ingrese precio:");
                         double duracionHoras = Ingreso.leerDoublePositivo("Ingrese duración en horas:");
-                        Vuelo.cargarVuelo(idVuelo, origen, destino, fechaSalida, precio, duracionHoras);
+                        Vuelo.cargarVuelo(idVuelo, origen, destino, hora, precio, duracionHoras);
                         break;
                     case 2:
                         String idEditar = Ingreso.leerString("Ingrese ID del vuelo a modificar:");
@@ -40,10 +41,10 @@ public class MenuVuelos {
                         }
                         String nuevoOrigen = Ingreso.leerString("Ingrese nuevo origen:");
                         String nuevoDestino = Ingreso.leerString("Ingrese nuevo destino:");
-                        String nuevaFecha = Ingreso.seleccionarFechaConSpinner("Ingrese nueva fecha de salida:");
+                        String nuevaHora = Ingreso.seleccionarHoraConSpinner("Ingrese nueva hora de salida:");
                         double nuevoPrecio = Ingreso.leerDoublePositivo("Ingrese nuevo precio:");
                         double nuevaDuracion = Ingreso.leerDoublePositivo("Ingrese nueva duración en horas:");
-                        Vuelo.editarVuelo(idEditar, nuevoOrigen, nuevoDestino, nuevaFecha, nuevoPrecio, nuevaDuracion);
+                        Vuelo.editarVuelo(idEditar, nuevoOrigen, nuevoDestino, nuevaHora, nuevoPrecio, nuevaDuracion);
                         break;
                     case 3:
                         String idEliminar = Ingreso.leerString("Ingrese ID del vuelo a eliminar:");

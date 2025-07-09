@@ -8,7 +8,7 @@ public class Vuelo {
     private String idVuelo;
     private String origen;
     private String destino;
-    private String fechaSalida;
+    private String hora;
     private double precio;
     private double duracionHoras;
 
@@ -18,11 +18,11 @@ public class Vuelo {
     private static int cantidad = 0;
 
     // Constructor
-        public Vuelo(String idVuelo, String origen, String destino, String fechaSalida, double precio, double duracionHoras) {
+        public Vuelo(String idVuelo, String origen, String destino, String hora, double precio, double duracionHoras) {
         this.idVuelo = idVuelo;
         this.origen = origen;
         this.destino = destino;
-        this.fechaSalida = fechaSalida;
+        this.hora = hora;
         this.precio = precio;
         this.duracionHoras = duracionHoras;
     }
@@ -37,8 +37,8 @@ public class Vuelo {
     public String getDestino() { return destino; }
     public void setDestino(String destino) { this.destino = destino; }
 
-    public String getFechaSalida() { return fechaSalida; }
-    public void setFechaSalida(String fechaSalida) { this.fechaSalida = fechaSalida; }
+    public String getHora() { return hora; }
+    public void setHora(String hora) { this.hora = hora; }
 
     public double getPrecio() { return precio; }
     public void setPrecio(double precio) { this.precio = precio; }
@@ -65,12 +65,12 @@ public class Vuelo {
 
     // Métodos estáticos de gestión
     // Método para editar un vuelo por idVuelo usando búsqueda binaria
-    public static boolean editarVuelo(String idVuelo, String nuevoOrigen, String nuevoDestino, String nuevaFechaSalida, double nuevoPrecio, double nuevaDuracionHoras) {
+    public static boolean editarVuelo(String idVuelo, String nuevoOrigen, String nuevoDestino, String nuevaHoraSalida, double nuevoPrecio, double nuevaDuracionHoras) {
         int pos = buscarPorIdVuelo(idVuelo);
          if (pos >= 0) {
             vuelos[pos].setOrigen(nuevoOrigen);
             vuelos[pos].setDestino(nuevoDestino);
-            vuelos[pos].setFechaSalida(nuevaFechaSalida);
+            vuelos[pos].setHora(nuevaHoraSalida);
             vuelos[pos].setPrecio(nuevoPrecio);
             vuelos[pos].setDuracionHoras(nuevaDuracionHoras);
             JOptionPane.showMessageDialog(null, "Vuelo editado correctamente.");
@@ -125,6 +125,7 @@ public class Vuelo {
         return -1;
     }
     
+    // Método para buscar y mostrar un vuelo por idVuelo
     public static void buscarYMostrarVueloPorId(String idVuelo) {
         int pos = buscarPorIdVuelo(idVuelo);
         if (pos >= 0) {
@@ -133,6 +134,7 @@ public class Vuelo {
             JOptionPane.showMessageDialog(null, "Vuelo no encontrado.");
         }
     }
+    
     // Método para ordenar el arreglo por idVuelo (burbuja)
     private static void ordenarPorIdVuelo() {
         for (int pasada = 0; pasada < cantidad - 1; pasada++) {
@@ -169,7 +171,7 @@ public class Vuelo {
         sb.append("ID Vuelo: ").append(idVuelo).append("\n");
         sb.append("Origen: ").append(origen).append("\n");
         sb.append("Destino: ").append(destino).append("\n");
-        sb.append("Fecha de Salida: ").append(fechaSalida).append("\n");
+        sb.append("Hora de Salida: ").append(hora).append("\n");
         sb.append("Precio: $").append(String.format("%.2f", precio)).append("\n");
         sb.append("Duración: ").append(duracionHoras).append(" horas\n");
         sb.append("====================================");

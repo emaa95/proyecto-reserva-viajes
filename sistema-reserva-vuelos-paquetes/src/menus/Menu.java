@@ -4,7 +4,7 @@ import javax.swing.JOptionPane;
 public class Menu {
 
     public static void mostrarMenuPrincipal() {
-        String[] opciones = {"Clientes", "Informes", "Paquetes", "Reservas", "Vuelos", "Salir"};
+        String[] opciones = {"Clientes", "Vendedor", "Informes", "Paquetes", "Reservas", "Vuelos", "Salir"};
         int opcion;
         do {
             opcion = JOptionPane.showOptionDialog(
@@ -24,29 +24,34 @@ public class Menu {
                     MenuClientes.mostrarMenu();
                     break;
                 case 1:
+                // Llamar al menú de vendedor
+                    //JOptionPane.showMessageDialog(null, "Menú Vendedor seleccionado.");
+                    MenuVendedor.mostrarMenu();
+                    break;
+                case 2:
                 // Llamar al menú de informes
                     JOptionPane.showMessageDialog(null, "Menú Informes seleccionado.");
                     break;
-                case 2:
+                case 3:
                 // Llamar al menú de paquetes
                     JOptionPane.showMessageDialog(null, "Menú Paquetes seleccionado.");
                     break;
                 // Llamar al menú de reservas
-                case 3:
+                case 4:
                     JOptionPane.showMessageDialog(null, "Menú Reservas seleccionado.");
                     break;
                 // Llamar al menú de vuelos
-                case 4:
+                case 5:
                     MenuVuelos.mostrarMenu();
                     break;
                 // Salir del sistema
-                case 5:
+                case 6:
                     JOptionPane.showMessageDialog(null, "Saliendo del sistema.");
                     break;
                 default:
                     // Si se cierra la ventana, salir
-                    opcion = 5;
+                    opcion = 6;
             }
-        } while (opcion != 5);
+        } while (opcion != 6);
     }
 }

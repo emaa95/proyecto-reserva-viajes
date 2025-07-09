@@ -163,7 +163,7 @@ public class Ingreso {
         return seleccion;
     }
 
-
+    // Método para seleccionar una fecha con un JSpinner
     public static String seleccionarFechaConSpinner(String mensaje) {
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     sdf.setLenient(false);
@@ -205,5 +205,35 @@ public class Ingreso {
         }
     } while (repetir);
     return fechaFormateada;
+    }
+    
+    // Método para seleccionar una hora con un JSpinner
+    public static String seleccionarHoraConSpinner(String mensaje) {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        String horaFormateada = null;
+        boolean repetir;
+        do {
+            repetir = false;
+            JSpinner spinner = new JSpinner(new SpinnerDateModel());
+            spinner.setEditor(new JSpinner.DateEditor(spinner, "HH:mm"));
+            int opcion = JOptionPane.showOptionDialog(
+                null,
+                new Object[]{mensaje, spinner},
+                "Seleccionar hora",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                null,
+                null
+            );
+            if (opcion == JOptionPane.OK_OPTION) {
+                Date horaSeleccionada = (Date) spinner.getValue();
+                horaFormateada = sdf.format(horaSeleccionada);
+            } else {
+                JOptionPane.showMessageDialog(null, "Operación cancelada.");
+                return null;
+            }
+        } while (repetir);
+        return horaFormateada;
     }
 }
