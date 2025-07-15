@@ -2,6 +2,8 @@ package menus;
 
 import javax.swing.JOptionPane;
 import utils.inputOutputJOP.Ingreso;
+import utils.EliminarPorId;
+
 import clases.Vuelo;
 
 public class MenuVuelos {
@@ -19,41 +21,18 @@ public class MenuVuelos {
                 
                 switch (opcion) {
                     case 1:
-                        String idVuelo = Ingreso.leerString("Ingrese ID de vuelo:");
-                        if (Vuelo.existeIdVuelo(idVuelo)) {
-                            JOptionPane.showMessageDialog(null, "Ya existe un vuelo con el ID: " + idVuelo);
-                            break; 
-                        }
-                        String origen = Ingreso.leerString("Ingrese origen:");
-                        String destino = Ingreso.leerString("Ingrese destino:");
-                        //String fechaSalida = Ingreso.seleccionarFechaConSpinner("Ingrese fecha de salida:");
-                        String hora = Ingreso.seleccionarHoraConSpinner("Ingrese la hora de salida:");
-                        double precio = Ingreso.leerDoublePositivo("Ingrese precio:");
-                        double duracionHoras = Ingreso.leerDoublePositivo("Ingrese duración en horas:");
-                        Vuelo.cargarVuelo(idVuelo, origen, destino, hora, precio, duracionHoras);
+                        Vuelo.cargarVuelo();
                         break;
                     case 2:
-                        String idEditar = Ingreso.leerString("Ingrese ID del vuelo a modificar:");
-                        // Verificar si el vuelo existe antes de editar
-                        if (!Vuelo.existeIdVuelo(idEditar)) {
-                            JOptionPane.showMessageDialog(null, "No existe un vuelo con ese ID.");
-                            break;
-                        }
-                        String nuevoOrigen = Ingreso.leerString("Ingrese nuevo origen:");
-                        String nuevoDestino = Ingreso.leerString("Ingrese nuevo destino:");
-                        String nuevaHora = Ingreso.seleccionarHoraConSpinner("Ingrese nueva hora de salida:");
-                        double nuevoPrecio = Ingreso.leerDoublePositivo("Ingrese nuevo precio:");
-                        double nuevaDuracion = Ingreso.leerDoublePositivo("Ingrese nueva duración en horas:");
-                        Vuelo.editarVuelo(idEditar, nuevoOrigen, nuevoDestino, nuevaHora, nuevoPrecio, nuevaDuracion);
+                        Vuelo.editarVuelo();
                         break;
                     case 3:
                         String idEliminar = Ingreso.leerString("Ingrese ID del vuelo a eliminar:");
-                        // Verificar si el vuelo existe antes de eliminar
-                        if (!Vuelo.existeIdVuelo(idEliminar)) {
-                            JOptionPane.showMessageDialog(null, "No existe un vuelo con ese ID.");
-                            break;
+                        boolean eliminado = EliminarPorId.eliminarPorId(idEliminar, Vuelo.getVuelos(), new int[]{Vuelo.getCantidad()});
+                        //Actualizar la cantidad
+                        if (eliminado) {
+                            Vuelo.setCantidad(Vuelo.getCantidad() - 1);
                         }
-                        Vuelo.eliminarVuelo(idEliminar);
                         break;
                     case 4:
                         Vuelo.verTodosLosVuelos();

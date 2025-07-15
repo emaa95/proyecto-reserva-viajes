@@ -1,6 +1,8 @@
 package menus;
 
 import javax.swing.JOptionPane;
+
+import clases.Vendedor;
 import utils.inputOutputJOP.Ingreso;
 
 public class MenuVendedor {
@@ -17,34 +19,26 @@ public class MenuVendedor {
 
             switch (opcion) {
                 case 1:
-                    String nombre = Ingreso.leerString("Ingrese nombre:");
-                    String apellido = Ingreso.leerString("Ingrese apellido:");
-                    String dni = Ingreso.leerString("Ingrese DNI:");
-                    // Agregar atributos específicos del vendedor
-                    //Vendedor.cargarVendedor(nombre, apellido, dni);
+                    Vendedor.cargarVendedor();
                     break;
                 case 2:
                 // Verificar si hay vendedores registrados antes de editar
-                    //if (Vendedor.getCantidad() == 0) {
-                      //  JOptionPane.showMessageDialog(null, "No hay vendedores registrados.");
-                        //break;
-                    //}
-                    String dniEditar = Ingreso.leerString("Ingrese DNI del vendedor a editar:");
-                    String nuevoNombre = Ingreso.leerString("Ingrese nuevo nombre:");
-                    String nuevoApellido = Ingreso.leerString("Ingrese nuevo apellido:");
-                    //Vendedor.editarVendedor(dniEditar, nuevoNombre, nuevoApellido);
+                    if (Vendedor.getCantidad() == 0) {
+                        JOptionPane.showMessageDialog(null, "No hay vendedores registrados.");
+                        break;
+                    }
+                    Vendedor.editarVendedor();
                     break;
                 case 3:
                 // Verificar si hay vendedores registrados antes de eliminar
-                    // if (Vendedor.getCantidad() == 0) {
-                    //     JOptionPane.showMessageDialog(null, "No hay vendedores registrados.");
-                    //     break;
-                    // }
-                    String dniEliminar = Ingreso.leerString("Ingrese DNI del vendedor a eliminar:");
-                    //Vendedor.eliminarVendedor(dniEliminar);
+                    if (Vendedor.getCantidad() == 0) {
+                        JOptionPane.showMessageDialog(null, "No hay vendedores registrados.");
+                        break;
+                    }
+                    Vendedor.eliminarVendedor();
                     break;
                 case 4:
-                    //Vendedor.verTodosLosVendedores();
+                    Vendedor.listarVendedores();
                     break;
                 case 5:
                     JOptionPane.showMessageDialog(null, "Saliendo del menú de vendedores.");
