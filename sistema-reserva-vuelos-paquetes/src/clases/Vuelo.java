@@ -2,6 +2,9 @@ package clases;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import utils.inputOutputJOP.Ingreso;
+import utils.busquedas.Buscador;
+
 import javax.swing.JOptionPane;
 
 public class Vuelo {
@@ -46,33 +49,54 @@ public class Vuelo {
     public double getDuracionHoras() { return duracionHoras; }
     public void setDuracionHoras(double duracionHoras) { this.duracionHoras = duracionHoras; }
 
-    // Método para cargar un nuevo vuelo
-    public static boolean cargarVuelo(String idVuelo, String origen, String destino, String fechaSalida, double precio, double duracionHoras) {
-        // Verificar si ya existe un vuelo con el mismo idVuelo
-        if (existeIdVuelo(idVuelo)) {
+    public static int getCantidad() {return cantidad; }
+    public static void setCantidad(int nuevaCantidad) {cantidad = nuevaCantidad;}
+
+    public static Vuelo[] getVuelos() {return vuelos;}
+
+    // Método para cargar un vuelo.
+    public static boolean cargarVuelo() {
+        String idVuelo = Ingreso.leerString("Ingrese ID de vuelo:");
+        int pos = Buscador.buscarPorId(idVuelo, vuelos, cantidad);
+        if (pos >= 0) {
             JOptionPane.showMessageDialog(null, "Ya existe un vuelo con ese ID.");
             return false;
         }
-        if (cantidad < MAX_VUELOS) {
-            vuelos[cantidad++] = new Vuelo(idVuelo, origen, destino, fechaSalida, precio, duracionHoras);
-            ordenarPorIdVuelo();
-            JOptionPane.showMessageDialog(null, "Vuelo cargado correctamente.");
-            return true;
+        //Verificar tamaño de array antes de pedir los datos al usuario
+        if (cantidad >= MAX_VUELOS) {
+            JOptionPane.showMessageDialog(null, "No se pueden cargar más vuelos. Límite alcanzado.");
+            return false;
         }
-        JOptionPane.showMessageDialog(null, "No se pudo cargar el vuelo. Límite alcanzado.");
-        return false;
-    }
+        
+        String origen = Ingreso.leerString("Ingrese origen:");
+        String destino = Ingreso.leerString("Ingrese destino:");
+        String fechaSalida = Ingreso.seleccionarHoraConSpinner("Ingrese la hora de salida:");
+        double precio = Ingreso.leerDoublePositivo("Ingrese precio:");
+        double duracionHoras = Ingreso.leerDoublePositivo("Ingrese duración en horas:");
+        cantidad++;
 
-    // Métodos estáticos de gestión
-    // Método para editar un vuelo por idVuelo usando búsqueda binaria
-    public static boolean editarVuelo(String idVuelo, String nuevoOrigen, String nuevoDestino, String nuevaHoraSalida, double nuevoPrecio, double nuevaDuracionHoras) {
-        int pos = buscarPorIdVuelo(idVuelo);
-         if (pos >= 0) {
+        vuelos[cantidad++] = new Vuelo(idVuelo, origen, destino, fechaSalida, precio, duracionHoras);
+        JOptionPane.showMessageDialog(null, "Vuelo cargado correctamente.");
+        return true;
+        }
+
+    // Método para editar un vuelo.
+    public static boolean editarVuelo() {
+        String idVueloAEditar= Ingreso.leerString("Ingrese ID del vuelo a editar:");
+        int pos = Buscador.buscarPorId(idVueloAEditar, vuelos, cantidad); //Busca el vuelo por idVuelo(Busqueda binaria)
+        if (pos >= 0) {
+            // Si el vuelo existe, solicita los nuevos datos
+            String nuevoOrigen = Ingreso.leerString("Ingrese nuevo origen:");
+            String nuevoDestino = Ingreso.leerString("Ingrese nuevo destino:");
+            String nuevaHora = Ingreso.seleccionarHoraConSpinner("Ingrese nueva hora de salida:");
+            double nuevoPrecio = Ingreso.leerDoublePositivo("Ingrese nuevo precio:");
+            double nuevaDuracion = Ingreso.leerDoublePositivo("Ingrese nueva duración en horas:");
+            // Actualiza los datos del vuelo
             vuelos[pos].setOrigen(nuevoOrigen);
             vuelos[pos].setDestino(nuevoDestino);
-            vuelos[pos].setHora(nuevaHoraSalida);
+            vuelos[pos].setHora(nuevaHora);
             vuelos[pos].setPrecio(nuevoPrecio);
-            vuelos[pos].setDuracionHoras(nuevaDuracionHoras);
+            vuelos[pos].setDuracionHoras(nuevaDuracion);
             JOptionPane.showMessageDialog(null, "Vuelo editado correctamente.");
             return true;
         }
@@ -80,87 +104,33 @@ public class Vuelo {
         return false;
     }
 
-    // Método para eliminar un vuelo por idVuelo usando búsqueda binaria
-    public static boolean eliminarVuelo(String idVuelo) {
-        int pos = buscarPorIdVuelo(idVuelo);
-        if (pos >= 0) {
-            vuelos[pos] = vuelos[cantidad - 1];
-            vuelos[cantidad - 1] = null;
-            cantidad--;
-            ordenarPorIdVuelo();
-            JOptionPane.showMessageDialog(null, "Vuelo eliminado correctamente.");
-            return true;
-        }
-        JOptionPane.showMessageDialog(null, "Vuelo no encontrado.");
-        return false;
-    }
-
-    // Método para ver todos los vuelos utilizando JTextArea y JScrollPane
+    // Método para ver todos los vuelos utilizando JTextArea y JScrollPane(Para poder scrollar si es necesario)
     public static void verTodosLosVuelos() {
         StringBuilder sb = new StringBuilder();
-        if (cantidad == 0) {
+            if (cantidad == 0) {
             sb.append("No hay vuelos registrados.");
-        } else {
-            for (int i = 0; i < cantidad; i++) {
-                sb.append(vuelos[i].toString()).append("\n");
+            } else {
+                for (int i = 0; i < cantidad; i++) {
+                    if (vuelos[i] != null) { // Verifica que una posición de vuelo no sea nulo
+                        sb.append(vuelos[i].toString()).append("\n");
+                    }
+                }
             }
-        }
         JTextArea textArea = new JTextArea(sb.toString());
         textArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(textArea);
         scrollPane.setPreferredSize(new java.awt.Dimension(400, 300));
         JOptionPane.showMessageDialog(null, scrollPane, "Listado de Vuelos", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-     // Método de búsqueda binaria por idVuelo
-    private static int buscarPorIdVuelo(String idVuelo) {
-        int inicio = 0;
-        int fin = cantidad - 1;
-        while (inicio <= fin) {
-            int medio = (inicio + fin) / 2;
-            if (vuelos[medio].idVuelo.equals(idVuelo)) return medio;
-            if (vuelos[medio].idVuelo.compareTo(idVuelo) < 0) inicio = medio + 1;
-            else fin = medio - 1;
         }
-        return -1;
-    }
-    
+
     // Método para buscar y mostrar un vuelo por idVuelo
     public static void buscarYMostrarVueloPorId(String idVuelo) {
-        int pos = buscarPorIdVuelo(idVuelo);
+        int pos = Buscador.buscarPorId(idVuelo, vuelos, cantidad);
         if (pos >= 0) {
             JOptionPane.showMessageDialog(null, vuelos[pos]);
         } else {
             JOptionPane.showMessageDialog(null, "Vuelo no encontrado.");
         }
-    }
-    
-    // Método para ordenar el arreglo por idVuelo (burbuja)
-    private static void ordenarPorIdVuelo() {
-        for (int pasada = 0; pasada < cantidad - 1; pasada++) {
-            for (int indice = 0; indice < cantidad - pasada - 1; indice++) {
-                if (vuelos[indice].idVuelo.compareTo(vuelos[indice + 1].idVuelo) > 0) {
-                    Vuelo vueloTemporal = vuelos[indice];
-                    vuelos[indice] = vuelos[indice + 1];
-                    vuelos[indice + 1] = vueloTemporal;
-                }
-            }
-        }
-    }
-
-    // Método para verificar si existe un vuelo con el mismo idVuelo
-    public static boolean existeIdVuelo(String idVuelo) {
-        for (int i = 0; i < cantidad; i++) {
-            if (vuelos[i].idVuelo.equals(idVuelo)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Método para obtener la cantidad de vuelos registrados
-    public static int getCantidadVuelos() {
-        return cantidad;
     }
 
     // Método para crear una cadena de texto con los detalles del vuelo
