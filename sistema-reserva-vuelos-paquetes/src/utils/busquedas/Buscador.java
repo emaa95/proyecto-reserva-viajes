@@ -1,5 +1,7 @@
 package utils.busquedas;
 
+import clases.Cliente;
+import clases.PaqueteTuristico;
 import clases.Reserva;
 import clases.Vuelo;
 import clases.Vendedor;
@@ -49,6 +51,10 @@ public class Buscador {
             return ((Reserva) obj).getIdReserva();
         if (obj instanceof Vendedor)
             return ((Vendedor) obj).getIdVendedor();
+        if (obj instanceof Cliente)
+        return ((Cliente) obj).getDni();
+        if (obj instanceof PaqueteTuristico)
+            return String.valueOf(((PaqueteTuristico) obj).getIdPaquete()); // Convierte int en string
         return "";
     }
 
