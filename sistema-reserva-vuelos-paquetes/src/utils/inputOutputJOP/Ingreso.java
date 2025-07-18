@@ -145,9 +145,9 @@ public class Ingreso {
     return n;
     }
 
-    public static boolean leerBoolean(String mensaje) {
-        String respuesta = JOptionPane.showInputDialog(null, mensaje).trim().toLowerCase();
-        return respuesta.equals("si") || respuesta.equals("sí") || respuesta.equals("s");
+   public static boolean leerBoolean(String mensaje) {
+    int opcion = JOptionPane.showConfirmDialog(null, mensaje, "Confirmación", JOptionPane.YES_NO_OPTION);
+    return opcion == JOptionPane.YES_OPTION;
     }
     
     public static int nOpciones(String cMensaje, String[] opc, String cTitulo) {
