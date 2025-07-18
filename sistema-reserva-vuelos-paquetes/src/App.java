@@ -3,7 +3,7 @@ import menus.Menu;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        Datos.precargarVendedores();
+        Datos.precargarTodo();
         Menu.mostrarMenuPrincipal();
     }
 }
