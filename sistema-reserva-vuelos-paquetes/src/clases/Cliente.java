@@ -4,6 +4,7 @@ import javax.swing.JOptionPane;
 
 import utils.busquedas.Buscador;
 import utils.inputOutputJOP.Ingreso;
+import utils.inputOutputJOP.Salida;
 
 public class Cliente extends Persona {
 
@@ -23,21 +24,31 @@ public class Cliente extends Persona {
     }
 
     // Método para cargar un nuevo cliente
-    public static boolean cargarCliente() {
-        if (cantidad < MAX_CLIENTES) {
-            String nombre = Ingreso.leerString("Ingrese nombre:");
-            String apellido = Ingreso.leerString("Ingrese apellido:");
-            String dni = Ingreso.leerString("Ingrese DNI:");
-            String telefono = Ingreso.leerString("Ingrese teléfono:");
-            String email = Ingreso.leerString("Ingrese email:");
-            clientes[cantidad++] = new Cliente(nombre, apellido, dni, telefono, email);
-            Buscador.ordenarPorId(clientes, cantidad);
-            JOptionPane.showMessageDialog(null, "Cliente cargado correctamente.");
-            return true;
-        }
+    public static Cliente cargarCliente() {
+    if (cantidad < MAX_CLIENTES) {
+        String nombre = Ingreso.leerString("Ingrese nombre:");
+        String apellido = Ingreso.leerString("Ingrese apellido:");
+        String dni = Ingreso.leerString("Ingrese DNI:");
+        String telefono = Ingreso.leerString("Ingrese teléfono:");
+        String email = Ingreso.leerString("Ingrese email:");
+
+        Cliente nuevoCliente = new Cliente(nombre, apellido, dni, telefono, email);
+        clientes[cantidad++] = nuevoCliente;
+        Buscador.ordenarPorId(clientes, cantidad);
+        JOptionPane.showMessageDialog(null, "Cliente cargado correctamente.");
+        return nuevoCliente;
+    } else {
         JOptionPane.showMessageDialog(null, "No se pudo cargar el cliente. Límite alcanzado.");
-        return false;
+        return null;
     }
+    }
+
+    public static void agregarCliente(Cliente c) {
+    if (cantidad < MAX_CLIENTES) {
+        clientes[cantidad++] = c;
+    }
+    }
+
 
     // Método para editar un cliente por DNI usando búsqueda binaria
     public static boolean editarCliente() {
@@ -94,6 +105,26 @@ public class Cliente extends Persona {
         JOptionPane.showMessageDialog(null, sb.toString());
     }
 
+    public static Cliente buscarClientePorDni(String dni) {
+        int pos = Buscador.buscarPorId(dni, clientes, cantidad);
+        if (pos >= 0) {
+            return clientes[pos];
+        }
+        return null;
+    }
+
+    public static Cliente obtenerCliente() {
+    String dniCliente = Ingreso.leerString("Ingrese el DNI del cliente: ");
+    Cliente cliente = Cliente.buscarClientePorDni(dniCliente);
+    if (cliente == null) {
+        Salida.mError("Cliente no encontrado", "Error");
+        boolean respuesta = Ingreso.leerBoolean("¿Desea agregar un nuevo cliente?");
+        if (respuesta) {
+            cliente = Cliente.cargarCliente();
+        }
+    }
+    return cliente;
+}
     /*  Método para ordenar el arreglo por DNI (usando burbuja)
     private static void ordenarPorDni() {
         for (int pasada = 0; pasada < cantidad - 1; pasada++) {

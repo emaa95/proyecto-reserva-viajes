@@ -1,4 +1,5 @@
 package clases;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
@@ -21,7 +22,7 @@ public class Vuelo {
     private static int cantidad = 0;
 
     // Constructor
-        public Vuelo(String idVuelo, String origen, String destino, String hora, double precio, double duracionHoras) {
+    public Vuelo(String idVuelo, String origen, String destino, String hora, double precio, double duracionHoras) {
         this.idVuelo = idVuelo;
         this.origen = origen;
         this.destino = destino;
@@ -31,28 +32,65 @@ public class Vuelo {
     }
 
     // Getters y Setters
-    public String getIdVuelo() { return idVuelo; }
-    public void setIdVuelo(String idVuelo) { this.idVuelo = idVuelo; }
+    public String getIdVuelo() {
+        return idVuelo;
+    }
 
-    public String getOrigen() { return origen; }
-    public void setOrigen(String origen) { this.origen = origen; }
+    public void setIdVuelo(String idVuelo) {
+        this.idVuelo = idVuelo;
+    }
 
-    public String getDestino() { return destino; }
-    public void setDestino(String destino) { this.destino = destino; }
+    public String getOrigen() {
+        return origen;
+    }
 
-    public String getHora() { return hora; }
-    public void setHora(String hora) { this.hora = hora; }
+    public void setOrigen(String origen) {
+        this.origen = origen;
+    }
 
-    public double getPrecio() { return precio; }
-    public void setPrecio(double precio) { this.precio = precio; }
+    public String getDestino() {
+        return destino;
+    }
 
-    public double getDuracionHoras() { return duracionHoras; }
-    public void setDuracionHoras(double duracionHoras) { this.duracionHoras = duracionHoras; }
+    public void setDestino(String destino) {
+        this.destino = destino;
+    }
 
-    public static int getCantidad() {return cantidad; }
-    public static void setCantidad(int nuevaCantidad) {cantidad = nuevaCantidad;}
+    public String getHora() {
+        return hora;
+    }
 
-    public static Vuelo[] getVuelos() {return vuelos;}
+    public void setHora(String hora) {
+        this.hora = hora;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
+
+    public double getDuracionHoras() {
+        return duracionHoras;
+    }
+
+    public void setDuracionHoras(double duracionHoras) {
+        this.duracionHoras = duracionHoras;
+    }
+
+    public static int getCantidad() {
+        return cantidad;
+    }
+
+    public static void setCantidad(int nuevaCantidad) {
+        cantidad = nuevaCantidad;
+    }
+
+    public static Vuelo[] getVuelos() {
+        return vuelos;
+    }
 
     // Método para cargar un vuelo.
     public static boolean cargarVuelo() {
@@ -62,12 +100,12 @@ public class Vuelo {
             JOptionPane.showMessageDialog(null, "Ya existe un vuelo con ese ID.");
             return false;
         }
-        //Verificar tamaño de array antes de pedir los datos al usuario
+        // Verificar tamaño de array antes de pedir los datos al usuario
         if (cantidad >= MAX_VUELOS) {
             JOptionPane.showMessageDialog(null, "No se pueden cargar más vuelos. Límite alcanzado.");
             return false;
         }
-        
+
         String origen = Ingreso.leerString("Ingrese origen:");
         String destino = Ingreso.leerString("Ingrese destino:");
         String fechaSalida = Ingreso.seleccionarHoraConSpinner("Ingrese la hora de salida:");
@@ -78,12 +116,19 @@ public class Vuelo {
         vuelos[cantidad++] = new Vuelo(idVuelo, origen, destino, fechaSalida, precio, duracionHoras);
         JOptionPane.showMessageDialog(null, "Vuelo cargado correctamente.");
         return true;
+    }
+
+    public static void agregarVuelo(Vuelo v) {
+        if (cantidad < MAX_VUELOS) {
+            vuelos[cantidad++] = v;
         }
+    }
 
     // Método para editar un vuelo.
     public static boolean editarVuelo() {
-        String idVueloAEditar= Ingreso.leerString("Ingrese ID del vuelo a editar:");
-        int pos = Buscador.buscarPorId(idVueloAEditar, vuelos, cantidad); //Busca el vuelo por idVuelo(Busqueda binaria)
+        String idVueloAEditar = Ingreso.leerString("Ingrese ID del vuelo a editar:");
+        int pos = Buscador.buscarPorId(idVueloAEditar, vuelos, cantidad); // Busca el vuelo por idVuelo(Busqueda
+                                                                          // binaria)
         if (pos >= 0) {
             // Si el vuelo existe, solicita los nuevos datos
             String nuevoOrigen = Ingreso.leerString("Ingrese nuevo origen:");
@@ -104,24 +149,25 @@ public class Vuelo {
         return false;
     }
 
-    // Método para ver todos los vuelos utilizando JTextArea y JScrollPane(Para poder scrollar si es necesario)
+    // Método para ver todos los vuelos utilizando JTextArea y JScrollPane(Para
+    // poder scrollar si es necesario)
     public static void verTodosLosVuelos() {
         StringBuilder sb = new StringBuilder();
-            if (cantidad == 0) {
+        if (cantidad == 0) {
             sb.append("No hay vuelos registrados.");
-            } else {
-                for (int i = 0; i < cantidad; i++) {
-                    if (vuelos[i] != null) { // Verifica que una posición de vuelo no sea nulo
-                        sb.append(vuelos[i].toString()).append("\n");
-                    }
+        } else {
+            for (int i = 0; i < cantidad; i++) {
+                if (vuelos[i] != null) { // Verifica que una posición de vuelo no sea nulo
+                    sb.append(vuelos[i].toString()).append("\n");
                 }
             }
+        }
         JTextArea textArea = new JTextArea(sb.toString());
         textArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(textArea);
         scrollPane.setPreferredSize(new java.awt.Dimension(400, 300));
         JOptionPane.showMessageDialog(null, scrollPane, "Listado de Vuelos", JOptionPane.INFORMATION_MESSAGE);
-        }
+    }
 
     // Método para buscar y mostrar un vuelo por idVuelo
     public static void buscarYMostrarVueloPorId(String idVuelo) {
@@ -131,6 +177,15 @@ public class Vuelo {
         } else {
             JOptionPane.showMessageDialog(null, "Vuelo no encontrado.");
         }
+    }
+
+    // Devuelvo un objeto Vuelo 
+    public static Vuelo buscarVueloPorId(String idVuelo) {
+        int pos = Buscador.buscarPorId(idVuelo, vuelos, cantidad);
+        if (pos >= 0) {
+            return vuelos[pos];
+        }
+        return null;
     }
 
     // Método para crear una cadena de texto con los detalles del vuelo

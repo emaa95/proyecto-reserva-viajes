@@ -9,7 +9,7 @@ import utils.inputOutputJOP.Ingreso;
 
 public class PaqueteTuristico {
 
-    private int idPaquete = 0;
+    private String idPaquete;
     private String descripcion;
     private String fechaSalida;
     private String fechaRegreso;
@@ -23,7 +23,7 @@ public class PaqueteTuristico {
     private static int cantidadPaquetes = 0;
 
     // Constructor
-    public PaqueteTuristico(int idPaquete, String descripcion, String fechaSalida, String fechaRegreso,
+    public PaqueteTuristico(String idPaquete, String descripcion, String fechaSalida, String fechaRegreso,
             String[] destinos, String vuelo, double precioTotal) {
         this.idPaquete = idPaquete;
         this.descripcion = descripcion;
@@ -39,16 +39,16 @@ public class PaqueteTuristico {
     public static boolean cargarPaquete() {
 
         if (cantidadPaquetes < MAX_PAQUETES) {
-            int idPaquete = Ingreso.leerEntero("Ingrese id del paquete:");
+            String idPaquete = Ingreso.leerString("Ingrese id del paquete:");
                 String descripcion = Ingreso.leerString("Ingrese descripción:");
                 String fechaSalida = Ingreso.leerString("Ingrese fecha de salida:");
                 String fechaRegreso = Ingreso.leerString("Ingrese fecha de regreso:");
-                String destinos[];
+                String destinosInput = Ingreso.leerString("Ingrese los destinos separados por coma:");
+                String[] destinos = destinosInput.split("\\s*,\\s*");
                 String vuelo = Ingreso.leerString("Ingrese vuelos:"); // Array de idVuelos
                 double precioTotal = Ingreso.leerDouble("Ingrese precio total:"); // Precio por pasajero
             paquetes[cantidadPaquetes++] = new PaqueteTuristico(idPaquete, descripcion, fechaSalida, fechaRegreso,
                     destinos, vuelo, precioTotal);
-            Buscador.ordenarPorId(destinos, idPaquete);
             JOptionPane.showMessageDialog(null, "Paquete cargado correctamente.");
             return true;
         }
@@ -56,16 +56,24 @@ public class PaqueteTuristico {
         return false;
     }
 
+    public static void agregarPaquete(PaqueteTuristico p) {
+    if (cantidadPaquetes < MAX_PAQUETES) {
+        paquetes[cantidadPaquetes++] = p;
+    }
+    }
+
+
     // Método para editar un paquete turístico usando búsqueda binaria
 
     public static boolean editarPaquete() {
-        int idPaqueteEditar = Ingreso.leerEntero("Ingrese id del paquete a editar:");
+        String idPaqueteEditar = Ingreso.leerString("Ingrese id del paquete a editar:");
         int pos = Buscador.buscarPorId(idPaqueteEditar, paquetes, cantidadPaquetes);
         if (pos >= 0) {
             String descripcionEditar = Ingreso.leerString("Ingrese la nueva descripción:");
             String fechaSalidaEditar = Ingreso.leerString("Ingrese la nueva fecha de salida:");
             String fechaRegresoEditar = Ingreso.leerString("Ingrese la nueva fecha de regreso:");
-            String destinosEditar[];
+            String destinosInput = Ingreso.leerString("Ingrese los nuevos destinos separados por coma:");
+            String[] destinosEditar = destinosInput.split("\\s*,\\s*");
             String vueloEditar = Ingreso.leerString("Ingrese los nuevos vuelos:");
             double precioTotaEditar = Ingreso.leerDouble("Ingrese el nuevo precio total:");
             paquetes[pos].descripcion = descripcionEditar;
@@ -84,7 +92,7 @@ public class PaqueteTuristico {
 
     // Método para eliminar un paquete turístico usando búsqueda binaria
     public static boolean eliminarPaquete() {
-        int idPaqueteEliminar = Ingreso.leerEntero("Ingrese el id del paquete a eliminar:");
+        String idPaqueteEliminar = Ingreso.leerString("Ingrese el id del paquete a eliminar:");
         int pos = Buscador.buscarPorId(idPaqueteEliminar, paquetes, cantidadPaquetes);
         if (pos >= 0) {
             paquetes[pos] = paquetes[cantidadPaquetes - 1];
@@ -110,13 +118,29 @@ public class PaqueteTuristico {
                 sb.append("Descripción: ").append(paquetes[i].descripcion).append("\n")
                         .append(", Fecha salida: ").append(paquetes[i].fechaSalida).append("\n")
                         .append(", Fecha regreso: ").append(paquetes[i].fechaRegreso).append("\n")
-                        .append(", Destinos: ").append(paquetes[i].destinos).append("\n")
+                        .append("Destinos: ");
+                        String[] destinos = paquetes[i].destinos;
+            for (int j = 0; j < destinos.length; j++) {
+                sb.append(destinos[j]);
+                if (j < destinos.length - 1) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("\n")
                         .append(", Vuelo: ").append(paquetes[i].vuelo).append("\n")
                         .append(", Precio total: ").append(paquetes[i].precioTotal).append("\n");
                 sb.append("====================================\n\n");
             }
         }
         JOptionPane.showMessageDialog(null, sb.toString());
+    }
+
+    public static PaqueteTuristico buscarPaquetePorId(String idPaqueteTuristico) {
+        int pos = Buscador.buscarPorId(idPaqueteTuristico, paquetes, cantidadPaquetes);
+        if (pos >= 0) {
+            return paquetes[pos];
+        }
+        return null;
     }
 
     /*  Método para ordenar el arreglo por id (usando burbuja)
@@ -160,11 +184,11 @@ public class PaqueteTuristico {
     }
 
     // Getters y Setters
-    public int getIdPaquete() {
+    public String getIdPaquete() {
         return idPaquete;
     }
 
-    public void setIdPaquete(int idPaquete) {
+    public void setIdPaquete(String idPaquete) {
         this.idPaquete = idPaquete;
     }
 
