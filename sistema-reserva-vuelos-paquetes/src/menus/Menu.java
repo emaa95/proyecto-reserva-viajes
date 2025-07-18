@@ -34,11 +34,11 @@ public class Menu {
                     break;
                 case 3:
                 // Llamar al menú de paquetes
-                    JOptionPane.showMessageDialog(null, "Menú Paquetes seleccionado.");
+                    MenuPaquetes.mostrarMenu();
                     break;
                 // Llamar al menú de reservas
                 case 4:
-                    JOptionPane.showMessageDialog(null, "Menú Reservas seleccionado.");
+                    MenuReservas.mostrarMenu();
                     break;
                 // Llamar al menú de vuelos
                 case 5:
