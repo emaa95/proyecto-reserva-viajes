@@ -8,7 +8,7 @@ import clases.Vendedor;
 
 public class Buscador {
     public static int buscarPorId(String id, Object[] arreglo, int cantidad) {
-        ordenarPorId(arreglo, 0);
+        ordenarPorId(arreglo, cantidad);
 
         int inicio = 0;
         int fin = cantidad - 1;
