@@ -1,7 +1,10 @@
 package datos;
 
 import clases.Cliente;
+import clases.EstadoReserva;
 import clases.PaqueteTuristico;
+import clases.Reserva;
+import clases.TipoServicio;
 import clases.Vendedor;
 import clases.Vuelo;
 
@@ -12,6 +15,7 @@ public class Datos {
         precargarClientes();
         precargarVuelos();
         precargarPaquetes();
+        precargarReservas();
     }
 
     // Vendedores
@@ -85,4 +89,38 @@ public class Datos {
     private static void agregarPaquete(PaqueteTuristico p) {
         PaqueteTuristico.agregarPaquete(p); 
     }
+
+    public static void precargarReservas() {
+        Cliente c1 = Cliente.buscarClientePorDni("44556677"); // Ana Torres
+        Cliente c2 = Cliente.buscarClientePorDni("99887766"); // Carlos Fernández
+        Cliente c3 = Cliente.buscarClientePorDni("33445566"); // Laura García
+
+        Vendedor v1 = Vendedor.buscarVendedorPorId("V001");
+        Vendedor v2 = Vendedor.buscarVendedorPorId("V002");
+
+        Vuelo ida1 = Vuelo.buscarVueloPorId("V1001");
+        Vuelo vuelta1 = Vuelo.buscarVueloPorId("V1002");
+
+        Vuelo ida2 = Vuelo.buscarVueloPorId("V1003");
+        Vuelo vuelta2 = Vuelo.buscarVueloPorId("V1004");
+
+        PaqueteTuristico paquete1 = PaqueteTuristico.buscarPaquetePorId("P001");
+        PaqueteTuristico paquete2 = PaqueteTuristico.buscarPaquetePorId("P002");
+
+        Reserva[] reservas = Reserva.getReservas();
+        int cantidad = Reserva.getCantidad();
+
+        reservas[cantidad++] = new Reserva(null, c1, v1, TipoServicio.VUELO, ida1, vuelta1, null, 2);
+        reservas[cantidad++] = new Reserva(null, c2, v2, TipoServicio.PAQUETE, null, null, paquete1, 3);
+        reservas[cantidad++] = new Reserva(null, c3, v1, TipoServicio.VUELO, ida2, vuelta2, null, 1);
+        reservas[cantidad++] = new Reserva(null, c1, v2, TipoServicio.PAQUETE, null, null, paquete2, 4);
+
+        // Opcional: cambiar estados de prueba
+        reservas[1].setEstado(EstadoReserva.RESERVADA);
+        reservas[2].setEstado(EstadoReserva.CONFIRMADA);
+        reservas[3].setEstado(EstadoReserva.PAGADA);
+
+        Reserva.setCantidad(cantidad);
+    }
 }
+
