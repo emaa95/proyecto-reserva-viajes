@@ -1,12 +1,15 @@
 package clases;
 
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import utils.busquedas.Buscador;
 import utils.inputOutputJOP.Ingreso;
 import utils.inputOutputJOP.Salida;
 
 public class Reserva {
+    private static int contadorId = 1;
     private String idReserva;
     private Cliente cliente;
     private Vendedor vendedor;
@@ -16,6 +19,7 @@ public class Reserva {
     private PaqueteTuristico paquete;
     private int cantidadPasajeros;
     private EstadoReserva estado;
+    private double precioFinal;
 
     // Declaración de array Reservas
     private static final int MAX_RESERVAS = 100;
@@ -25,7 +29,25 @@ public class Reserva {
     // Contructor
     public Reserva(String idReserva, Cliente cliente, Vendedor vendedor, TipoServicio tipo, Vuelo vueloIda,
             Vuelo vueloVuelta, PaqueteTuristico paquete, int cantidadPasajeros) {
-        this.idReserva = idReserva;
+
+        if (idReserva == null || idReserva.isEmpty()) {
+            this.idReserva = String.format("R%03d", contadorId++);
+        } else {
+            this.idReserva = idReserva;
+
+            // Actualiza el contador si el ID recibido tiene un número mayor
+            if (idReserva.startsWith("R")) {
+                try {
+                    int numero = Integer.parseInt(idReserva.substring(1));
+                    if (numero >= contadorId) {
+                        contadorId = numero + 1;
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Advertencia: ID de reserva con formato inválido: " + idReserva);
+                }
+            }
+        }
+
         this.cliente = cliente;
         this.vendedor = vendedor;
         this.tipo = tipo;
@@ -34,6 +56,7 @@ public class Reserva {
         this.paquete = paquete;
         this.cantidadPasajeros = cantidadPasajeros;
         this.estado = EstadoReserva.PENDIENTE;
+        this.precioFinal = 0.0;
     }
 
     // Getters y Setters
@@ -73,6 +96,10 @@ public class Reserva {
         this.cantidadPasajeros = cantidadPasajeros;
     }
 
+    public void setEstado(EstadoReserva estado) {
+        this.estado = estado;
+    }
+
     public EstadoReserva getEstado() {
         return estado;
     }
@@ -97,7 +124,36 @@ public class Reserva {
         Reserva.cantidad = cantidad;
     }
 
+    public double getPrecioFinal() {
+        return precioFinal;
+    }
+
+    public void setPrecioFinal(double precioFinal) {
+        this.precioFinal = precioFinal;
+    }
+
     // Métodos
+    public double calcularTotal() {
+        double total = 0;
+
+        if (tipo == TipoServicio.VUELO) {
+            if (vueloIda != null) {
+                total += vueloIda.getPrecio();
+            }
+            if (vueloVuelta != null) {
+                total += vueloVuelta.getPrecio();
+            }
+        } else if (tipo == TipoServicio.PAQUETE) {
+            if (paquete != null) {
+                total += paquete.getPrecioTotal();
+            }
+        }
+
+        total *= cantidadPasajeros;
+
+        return total;
+    }
+
     public static void cargarReserva() {
 
         if (cantidad >= MAX_RESERVAS) {
@@ -139,7 +195,6 @@ public class Reserva {
         int seleccion = Ingreso.nOpciones("Seleccione un tipo de servicio: ", opciones, "Tipo de Servicio");
         TipoServicio tipoSeleccionado = tipos[seleccion];
 
-
         if (tipoSeleccionado == TipoServicio.VUELO) {
             do {
                 String idVuelo = Ingreso.leerString("Ingrese el ID del vuelo: ");
@@ -171,10 +226,26 @@ public class Reserva {
 
         int cantidadPasajeros = Ingreso.leerEnteroPositivo("Ingrese cantidad de pasajeros: ");
 
-        reservas[cantidad++] = new Reserva(id, cliente, vendedor, tipoSeleccionado, vueloIda, vueloVuelta, paquete,
+        Reserva reservaTemporal = new Reserva(id, cliente, vendedor, tipoSeleccionado, vueloIda, vueloVuelta, paquete,
                 cantidadPasajeros);
 
-        Salida.mConfirmacion("Reserva cargada correctamente", "Nueva Reserva");
+        double totalDolares = reservaTemporal.calcularTotal();
+
+        Salida.mMensaje(String.format("Precio final en dólares: $%.2f", totalDolares), "Precio de la Reserva");
+
+        boolean consultaEnPesos = Ingreso.leerBoolean("¿Desea ver el precio en pesos?");
+
+        if (consultaEnPesos) {
+            double precioDolar = Ingreso.leerDoublePositivo("Ingrese el precio del dólar del día:");
+            double precioPesos = totalDolares * precioDolar;
+            Salida.mMensaje(String.format("Precio final en pesos: $%.2f", precioPesos), "Precio de la Reserva");
+        }
+
+        reservaTemporal.setPrecioFinal(totalDolares);
+
+        reservas[cantidad++] = reservaTemporal;
+
+        Salida.mMensaje("Reserva cargada correctamente.\n\n" + reservaTemporal.toString(), "Nueva Reserva");
 
     }
 
@@ -184,6 +255,161 @@ public class Reserva {
             return;
         }
 
+        String id = Ingreso.leerString("Ingrese ID de la reserva a modificar:");
+        Reserva reserva = buscarReservaPorId(id);
+
+        if (reserva == null) {
+            Salida.mError("Reserva no encontrada.", "Error");
+            return;
+        }
+
+        EstadoReserva estado = reserva.getEstado();
+
+        // No se puede modificar en estados finales
+        if (estado == EstadoReserva.COMPLETADA || estado == EstadoReserva.CANCELADA ||
+                estado == EstadoReserva.RECHAZADA || estado == EstadoReserva.EXPIRADA ||
+                estado == EstadoReserva.FALLIDA || estado == EstadoReserva.REEMBOLSADA) {
+            Salida.mError("No se puede modificar una reserva con estado: " + estado, "Acción no permitida");
+            return;
+        }
+
+        boolean continuar = true;
+
+        while (continuar) {
+            String[] opciones;
+
+            // Definir menú según estado actual
+            if (estado == EstadoReserva.PENDIENTE || estado == EstadoReserva.EN_PROCESO) {
+                opciones = new String[] { "Modificar cantidad de pasajeros", "Modificar vuelos o paquete",
+                        "Modificar estado", "Salir" };
+            } else if (estado == EstadoReserva.RESERVADA) {
+                opciones = new String[] { "Modificar cantidad de pasajeros", "Modificar estado", "Salir" };
+            } else {
+                // CONFIRMADA, PAGADA, EN_CURSO, SUSPENDIDA
+                opciones = new String[] { "Modificar estado", "Salir" };
+            }
+
+            int seleccion = Ingreso.nOpciones("Seleccione acción para la reserva (" + estado + "):", opciones,
+                    "Modificar Reserva");
+            String opcion = opciones[seleccion];
+
+            switch (opcion) {
+                case "Modificar cantidad de pasajeros":
+                    int nuevaCantidad = Ingreso.leerEnteroPositivo("Ingrese nueva cantidad de pasajeros:");
+                    reserva.setCantidadPasajeros(nuevaCantidad);
+                    Salida.mMensaje("Cantidad de pasajeros actualizada.", "OK");
+                    break;
+
+                case "Modificar vuelos o paquete":
+                    if (reserva.getTipo() == TipoServicio.VUELO) {
+                        Vuelo ida = null;
+                        do {
+                            String idIda = Ingreso.leerString("Nuevo ID de vuelo de ida:");
+                            ida = Vuelo.buscarVueloPorId(idIda);
+                            if (ida == null) {
+                                Salida.mError("Vuelo no encontrado.", "Error");
+                            }
+                        } while (ida == null);
+                        reserva.vueloIda = ida;
+
+                        boolean editarVuelta = Ingreso.leerBoolean("¿Desea modificar o eliminar vuelo de vuelta?");
+                        if (editarVuelta) {
+                            boolean agregar = Ingreso.leerBoolean("¿Asignar un nuevo vuelo de vuelta?");
+                            if (agregar) {
+                                Vuelo vuelta = null;
+                                do {
+                                    String idVuelta = Ingreso.leerString("Nuevo ID de vuelo de vuelta:");
+                                    vuelta = Vuelo.buscarVueloPorId(idVuelta);
+                                    if (vuelta == null) {
+                                        Salida.mError("Vuelo no encontrado.", "Error");
+                                    }
+                                } while (vuelta == null);
+                                reserva.vueloVuelta = vuelta;
+                            } else {
+                                reserva.vueloVuelta = null;
+                            }
+                        }
+
+                    } else { // PAQUETE
+                        PaqueteTuristico nuevo = null;
+                        do {
+                            String idPaq = Ingreso.leerString("Nuevo ID de paquete:");
+                            nuevo = PaqueteTuristico.buscarPaquetePorId(idPaq);
+                            if (nuevo == null) {
+                                Salida.mError("Paquete no encontrado.", "Error");
+                            }
+                        } while (nuevo == null);
+                        reserva.paquete = nuevo;
+                    }
+                    Salida.mMensaje("Servicio actualizado.", "OK");
+                    break;
+
+                case "Modificar estado":
+                    EstadoReserva[] posiblesEstados;
+                    if (estado == EstadoReserva.PENDIENTE || estado == EstadoReserva.EN_PROCESO) {
+                        posiblesEstados = new EstadoReserva[] { EstadoReserva.RESERVADA, EstadoReserva.CANCELADA };
+                    } else if (estado == EstadoReserva.RESERVADA) {
+                        posiblesEstados = new EstadoReserva[] { EstadoReserva.CONFIRMADA, EstadoReserva.CANCELADA };
+                    } else if (estado == EstadoReserva.CONFIRMADA) {
+                        posiblesEstados = new EstadoReserva[] { EstadoReserva.PAGADA, EstadoReserva.CANCELADA };
+                    } else if (estado == EstadoReserva.PAGADA) {
+                        posiblesEstados = new EstadoReserva[] { EstadoReserva.EN_CURSO, EstadoReserva.REEMBOLSADA };
+                    } else if (estado == EstadoReserva.EN_CURSO) {
+                        posiblesEstados = new EstadoReserva[] { EstadoReserva.COMPLETADA, EstadoReserva.SUSPENDIDA };
+                    } else if (estado == EstadoReserva.SUSPENDIDA) {
+                        posiblesEstados = new EstadoReserva[] { EstadoReserva.EN_CURSO, EstadoReserva.CANCELADA };
+                    } else {
+                        posiblesEstados = new EstadoReserva[0];
+                    }
+
+                    if (posiblesEstados.length == 0) {
+                        Salida.mError("No se puede cambiar el estado actual.", "Error");
+                        break;
+                    }
+
+                    String[] opcionesEstado = new String[posiblesEstados.length];
+                    for (int i = 0; i < posiblesEstados.length; i++) {
+                        opcionesEstado[i] = posiblesEstados[i].name();
+                    }
+
+                    int seleccionEstado = Ingreso.nOpciones("Seleccione nuevo estado:", opcionesEstado, "Estado");
+                    reserva.estado = posiblesEstados[seleccionEstado];
+                    estado = reserva.estado;
+                    Salida.mMensaje("Estado actualizado a " + estado, "OK");
+                    break;
+
+                case "Salir":
+                    continuar = false;
+                    break;
+            }
+        }
+
+        Salida.mConfirmacion("Modificación de reserva finalizada.", "OK");
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ID Reserva: ").append(idReserva).append("\n");
+        sb.append("Cliente: ").append(cliente.getNombre()).append(" ").append(cliente.getApellido())
+                .append(" (DNI: ").append(cliente.getDni()).append(")\n");
+        sb.append("Vendedor: ").append(vendedor.getNombre())
+                .append(" (Legajo: ").append(vendedor.getIdVendedor()).append(")\n");
+        sb.append("Tipo de servicio: ").append(tipo).append("\n");
+
+        if (tipo == TipoServicio.VUELO) {
+            sb.append("Vuelo Ida: ").append(vueloIda != null ? vueloIda.getIdVuelo() : "No asignado").append("\n");
+            sb.append("Vuelo Vuelta: ").append(vueloVuelta != null ? vueloVuelta.getIdVuelo() : "No asignado")
+                    .append("\n");
+        } else if (tipo == TipoServicio.PAQUETE) {
+            sb.append("Paquete: ").append(paquete != null ? paquete.getDescripcion() : "No asignado").append("\n");
+        }
+
+        sb.append("Cantidad de Pasajeros: ").append(cantidadPasajeros).append("\n");
+        sb.append("Estado: ").append(estado).append("\n");
+        sb.append("Precio Final (USD): $").append(String.format("%.2f", precioFinal)).append("\n");
+
+        return sb.toString();
     }
 
     public static void verTodasLasReservas() {
@@ -196,31 +422,20 @@ public class Reserva {
         StringBuilder sb = new StringBuilder("LISTADO DE RESERVAS\n\n");
 
         for (int i = 0; i < cantidad; i++) {
-            Reserva r = reservas[i];
-            sb.append("ID: ").append(r.getIdReserva()).append("\n");
-            sb.append("Cliente: ").append(r.getCliente().getNombre()).append(" ").append(r.getCliente().getApellido())
-                    .append(" (DNI: ").append(r.getCliente().getDni()).append(")\n");
-            sb.append("Vendedor: ").append(r.getVendedor().getNombre()).append(" (Legajo: ")
-                    .append(r.getVendedor().getIdVendedor()).append(")\n");
-            sb.append("Tipo de servicio: ").append(r.getTipo()).append("\n");
-
-            if (r.getTipo() == TipoServicio.VUELO) {
-                sb.append("Vuelo ida: ").append(r.getVueloIda() != null ? r.getVueloIda().getIdVuelo() : "No asignado")
-                        .append("\n");
-                sb.append("Vuelo vuelta: ")
-                        .append(r.getVueloVuelta() != null ? r.getVueloVuelta().getIdVuelo() : "No asignado")
-                        .append("\n");
-            } else {
-                sb.append("Paquete: ").append(r.getPaquete() != null ? r.getPaquete().getDescripcion() : "No asignado")
-                        .append("\n");
-            }
-
-            sb.append("Cantidad de pasajeros: ").append(r.getCantidadPasajeros()).append("\n");
-            sb.append("Estado: ").append(r.getEstado()).append("\n");
+            sb.append(reservas[i].toString());
             sb.append("------------------------------------------\n");
         }
 
-        JOptionPane.showMessageDialog(null, sb.toString(), "Reservas", JOptionPane.INFORMATION_MESSAGE);
+        JTextArea textArea = new JTextArea(sb.toString());
+        textArea.setEditable(false);
+        textArea.setCaretPosition(0); // Empieza desde arriba
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new java.awt.Dimension(400, 300));
+
+        JOptionPane.showMessageDialog(null, scrollPane, "Reservas", JOptionPane.INFORMATION_MESSAGE);
     }
 
     // Método que devuelvo un objeto Reserva
