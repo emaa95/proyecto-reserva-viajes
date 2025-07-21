@@ -457,4 +457,51 @@ public class Reserva {
         }
     }
 
+    // Método para buscar y mostrar reservas por estado
+    public static void mostrarReservasPorEstado(EstadoReserva estadoBuscado) {
+        boolean encontrado = false;
+        StringBuilder sb = new StringBuilder("Reservas con estado: " + estadoBuscado + "\n\n");
+
+        for (int i = 0; i < cantidad; i++) {
+            Reserva r = reservas[i];
+            if (r != null && r.getEstado() == estadoBuscado) {
+                sb.append("ID: ").append(r.idReserva)
+                    .append("\nCliente: ").append(r.cliente.getNombre())
+                    .append("\nVendedor: ").append(r.vendedor.getNombre())
+                    .append("\nTipo Servicio: ").append(r.tipo)
+                    .append("\nCantidad Pasajeros: ").append(r.cantidadPasajeros)
+                    .append("\nEstado: ").append(r.estado)
+                    .append("\nPrecio Final: $").append(r.precioFinal)
+                    .append("\n------------------------\n");
+                encontrado = true;
+            }
+        }
+
+        if (encontrado) {
+            JOptionPane.showMessageDialog(null, sb.toString(), "Resultados de búsqueda", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null, "No se encontraron reservas con estado: " + estadoBuscado, "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    // Método para mostrar el estado de todas las reservas
+    public static void mostrarEstadoActualReservas() {
+        if (cantidad == 0) {
+            JOptionPane.showMessageDialog(null, "No hay reservas registradas.", "Estado de Reservas", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder("Estado actual de todas las reservas:\n\n");
+
+        for (int i = 0; i < cantidad; i++) {
+            Reserva r = reservas[i];
+            if (r != null) {
+                sb.append("ID: ").append(r.idReserva)
+                .append(" | Cliente: ").append(r.cliente.getNombre()) 
+                .append(" | Estado: ").append(r.estado)
+                .append("\n");
+            }
+        }
+        JOptionPane.showMessageDialog(null, sb.toString(), "Estado de Reservas", JOptionPane.INFORMATION_MESSAGE);
+        }
 }

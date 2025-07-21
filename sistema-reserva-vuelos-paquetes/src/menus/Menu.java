@@ -25,12 +25,11 @@ public class Menu {
                     break;
                 case 1:
                 // Llamar al menú de vendedor
-                    //JOptionPane.showMessageDialog(null, "Menú Vendedor seleccionado.");
                     MenuVendedor.mostrarMenu();
                     break;
                 case 2:
                 // Llamar al menú de informes
-                    JOptionPane.showMessageDialog(null, "Menú Informes seleccionado.");
+                    MenuInformes.mostrarMenu();
                     break;
                 case 3:
                 // Llamar al menú de paquetes

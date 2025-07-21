@@ -1,9 +1,6 @@
 package clases;
-
 import java.util.Arrays;
-
 import javax.swing.JOptionPane;
-
 import utils.busquedas.Buscador;
 import utils.inputOutputJOP.Ingreso;
 
@@ -240,4 +237,59 @@ public class PaqueteTuristico {
         this.precioTotal = precioTotal;
     }
 
+    public static int getCantidad() {
+        return cantidadPaquetes;
+    }
+
+    public static PaqueteTuristico getPaquete(int i) {
+        return paquetes[i];
+    }
+    // Metodo para listar paquetes por destino (Llamados desde informes)
+   public static void mostrarPaquetesPorDestino(String destinoBuscado) {
+        boolean encontrado = false;
+
+        for (int i = 0; i < getCantidad(); i++) {
+            PaqueteTuristico paquete = getPaquete(i);
+
+            for (String destino : paquete.getDestinos()) {
+                if (destino.equalsIgnoreCase(destinoBuscado)) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("====================================\n");
+                    sb.append("Descripción: ").append(paquete.getDescripcion()).append("\n")
+                    .append("Fecha salida: ").append(paquete.getFechaSalida()).append("\n")
+                    .append("Fecha regreso: ").append(paquete.getFechaRegreso()).append("\n")
+                    .append("Destinos: ");
+                    String[] destinos = paquete.getDestinos();
+                    for (int j = 0; j < destinos.length; j++) {
+                        sb.append(destinos[j]);
+                        if (j < destinos.length - 1) {
+                            sb.append(", ");
+                        }
+                    }
+                    sb.append("\n")
+                    .append("Vuelo: ").append(paquete.getVuelo()).append("\n")
+                    .append("Precio total: ").append(paquete.getPrecioTotal()).append("\n")
+                    .append("====================================\n\n");
+
+                    JOptionPane.showMessageDialog(
+                        null,
+                        sb.toString(),
+                        "Paquete encontrado",
+                        JOptionPane.INFORMATION_MESSAGE
+                    );
+
+                    encontrado = true;
+                    break; 
+                }
+            }
+        }
+        if (!encontrado) {
+            JOptionPane.showMessageDialog(
+                null,
+                "No se encontraron paquetes para el destino: " + destinoBuscado,
+                "Resultado de búsqueda",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        }
+    }
 }
