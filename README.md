@@ -18,7 +18,7 @@ El sistema está compuesto por las siguientes **clases principales**:
 - **Persona**: Clase base de la cual heredan otras clases como Cliente y Vendedor.
 - **Cliente**: Hereda de Persona. Contiene los datos del pasajero.
 - **Vendedor**: Hereda de Persona. Representa a los empleados encargados de gestionar ventas.
-- **PaqueteTuristico**: Representa un conjunto de servicios ofrecidos al cliente (vuelos, fehcas, destinos, etc.).
+- **PaqueteTuristico**: Representa un conjunto de servicios ofrecidos al cliente (vuelos, fechas, destinos, etc.).
 - **Vuelo**: Contiene la información de vuelos (origen, destino, hora, precio, etc.).
 - **Reserva**: Representa una reserva realizada por un cliente, enlazando con un vuelo o paquete.
 
@@ -120,7 +120,7 @@ En dicho Menú se puede editar, eliminar y obtener un listado de vendedores.
 **Flujo principal**:
 1. El usuario selecciona la opción `Vuelos` en el menú principal.
 2. Elegir la opción `Registrar nuevo vuelo`.
-3. El sistema solicita los datos del vuelo (idVuelo, origen, destino, hora, precio, duración de horas etc.).
+3. El sistema solicita los datos del vuelo (idVuelo, origen, destino, fecha, hora, precio, duración de horas etc.).
 4. El usuario ingresa los datos.
 5. El sistema confirma que el vuelo fue agregado correctamente.
 
