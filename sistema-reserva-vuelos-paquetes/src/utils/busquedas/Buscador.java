@@ -5,6 +5,7 @@ import clases.PaqueteTuristico;
 import clases.Reserva;
 import clases.Vuelo;
 import clases.Vendedor;
+import clases.Persona;
 
 public class Buscador {
     public static int buscarPorId(String id, Object[] arreglo, int cantidad) {
@@ -51,10 +52,12 @@ public class Buscador {
             return ((Reserva) obj).getIdReserva();
         if (obj instanceof Vendedor)
             return ((Vendedor) obj).getIdVendedor();
+        if (obj instanceof Persona)
+            return ((Persona) obj).getDni();
         if (obj instanceof Cliente)
         return ((Cliente) obj).getDni();
         if (obj instanceof PaqueteTuristico)
-            return String.valueOf(((PaqueteTuristico) obj).getIdPaquete()); // Convierte int en string
+               return ((PaqueteTuristico) obj).getIdPaquete();
         return "";
     }
 
