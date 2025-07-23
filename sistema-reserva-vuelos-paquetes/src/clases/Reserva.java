@@ -8,6 +8,9 @@ import utils.busquedas.Buscador;
 import utils.inputOutputJOP.Ingreso;
 import utils.inputOutputJOP.Salida;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Reserva {
     private static int contadorId = 1;
     private String idReserva;
@@ -20,34 +23,18 @@ public class Reserva {
     private int cantidadPasajeros;
     private EstadoReserva estado;
     private double precioFinal;
+    private LocalDateTime fechaCreacion;
 
     // Declaración de array Reservas
     private static final int MAX_RESERVAS = 100;
     private static Reserva[] reservas = new Reserva[MAX_RESERVAS];
     private static int cantidad = 0;
 
-    // Contructor
-    public Reserva(String idReserva, Cliente cliente, Vendedor vendedor, TipoServicio tipo, Vuelo vueloIda,
-            Vuelo vueloVuelta, PaqueteTuristico paquete, int cantidadPasajeros) {
+    public Reserva(Cliente cliente, Vendedor vendedor, TipoServicio tipo,
+            Vuelo vueloIda, Vuelo vueloVuelta, PaqueteTuristico paquete,
+            int cantidadPasajeros, LocalDateTime fechaCreacion) {
 
-        if (idReserva == null || idReserva.isEmpty()) {
-            this.idReserva = String.format("R%03d", contadorId++);
-        } else {
-            this.idReserva = idReserva;
-
-            // Actualiza el contador si el ID recibido tiene un número mayor
-            if (idReserva.startsWith("R")) {
-                try {
-                    int numero = Integer.parseInt(idReserva.substring(1));
-                    if (numero >= contadorId) {
-                        contadorId = numero + 1;
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("Advertencia: ID de reserva con formato inválido: " + idReserva);
-                }
-            }
-        }
-
+        this.idReserva = String.format("R%03d", contadorId++);
         this.cliente = cliente;
         this.vendedor = vendedor;
         this.tipo = tipo;
@@ -57,6 +44,8 @@ public class Reserva {
         this.cantidadPasajeros = cantidadPasajeros;
         this.estado = EstadoReserva.PENDIENTE;
         this.precioFinal = 0.0;
+        this.fechaCreacion = (fechaCreacion != null) ? fechaCreacion : LocalDateTime.now();
+
     }
 
     // Getters y Setters
@@ -132,27 +121,34 @@ public class Reserva {
         this.precioFinal = precioFinal;
     }
 
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+
     // Métodos
     public double calcularTotal() {
-        double total = 0;
+    double total = 0;
 
-        if (tipo == TipoServicio.VUELO) {
-            if (vueloIda != null) {
-                total += vueloIda.getPrecio();
-            }
-            if (vueloVuelta != null) {
-                total += vueloVuelta.getPrecio();
-            }
-        } else if (tipo == TipoServicio.PAQUETE) {
-            if (paquete != null) {
-                total += paquete.getPrecioTotal();
-            }
+    if (tipo == TipoServicio.VUELO) {
+        if (vueloIda != null) {
+            total += vueloIda.calcularPrecioFinal(); 
         }
-
-        total *= cantidadPasajeros;
-
-        return total;
+        if (vueloVuelta != null) {
+            total += vueloVuelta.calcularPrecioFinal();
+        }
+    } else if (tipo == TipoServicio.PAQUETE) {
+        if (paquete != null) {
+            total += paquete.getPrecioTotal();
+        }
     }
+
+    total *= cantidadPasajeros;
+    this.precioFinal = total;
+
+    return total;
+}
+
 
     public static void cargarReserva() {
 
@@ -160,8 +156,6 @@ public class Reserva {
             Salida.mError("Capacidad máxima de reservas alcanzada", "Error");
             return;
         }
-
-        String id = Ingreso.leerString("Ingrese ID de la reserva:");
 
         Cliente cliente = Cliente.obtenerCliente();
         if (cliente == null) {
@@ -181,6 +175,8 @@ public class Reserva {
             }
 
         } while (vendedor == null);
+
+        int cantidadPasajeros = Ingreso.leerEnteroPositivo("Ingrese cantidad de pasajeros: ");
 
         Vuelo vueloIda = null;
         Vuelo vueloVuelta = null;
@@ -202,6 +198,12 @@ public class Reserva {
                 if (vueloIda == null) {
                     Salida.mError("Vuelo no encontrado. Intente nuevamente.", "Error");
                 }
+
+                if (vueloIda.getAsientosDisponibles() < cantidadPasajeros) {
+                    Salida.mError("No hay suficientes asientos disponibles en el vuelo de ida.", "Error");
+                    vueloIda = null; 
+                }
+
             } while (vueloIda == null);
 
             boolean agregarViajeVuelta = Ingreso.leerBoolean("Desea agregar vuelo de vuelta?");
@@ -212,8 +214,17 @@ public class Reserva {
                     if (vueloVuelta == null) {
                         Salida.mError("Vuelo no encontrado. Intente nuevamente.", "Error");
                     }
+
+                    if (vueloVuelta.getAsientosDisponibles() < cantidadPasajeros) {
+                        Salida.mError("No hay suficientes asientos disponibles en el vuelo de vuelta.", "Error");
+                        vueloVuelta = null; 
+                    }
                 } while (vueloVuelta == null);
             }
+               vueloIda.reservarAsientos(cantidadPasajeros);
+        if (vueloVuelta != null) {
+            vueloVuelta.reservarAsientos(cantidadPasajeros);
+        }
         } else {
             do {
                 String idPaquete = Ingreso.leerString("Ingrese el ID del paquete: ");
@@ -224,10 +235,9 @@ public class Reserva {
             } while (paquete == null);
         }
 
-        int cantidadPasajeros = Ingreso.leerEnteroPositivo("Ingrese cantidad de pasajeros: ");
 
-        Reserva reservaTemporal = new Reserva(id, cliente, vendedor, tipoSeleccionado, vueloIda, vueloVuelta, paquete,
-                cantidadPasajeros);
+        Reserva reservaTemporal = new Reserva(cliente, vendedor, tipoSeleccionado, vueloIda, vueloVuelta, paquete,
+                cantidadPasajeros, null);
 
         double totalDolares = reservaTemporal.calcularTotal();
 
@@ -419,10 +429,13 @@ public class Reserva {
             return;
         }
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         StringBuilder sb = new StringBuilder("LISTADO DE RESERVAS\n\n");
 
         for (int i = 0; i < cantidad; i++) {
+            Reserva r = reservas[i];
             sb.append(reservas[i].toString());
+            sb.append("Fecha de creación: ").append(r.getFechaCreacion().format(formatter)).append("\n");
             sb.append("------------------------------------------\n");
         }
 

@@ -4,7 +4,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import utils.inputOutputJOP.Ingreso;
+import utils.inputOutputJOP.Salida;
 import utils.busquedas.Buscador;
+
+import java.time.LocalDate;
+import java.time.Month;
 
 import javax.swing.JOptionPane;
 
@@ -12,9 +16,12 @@ public class Vuelo {
     private String idVuelo;
     private String origen;
     private String destino;
+    private String fecha;
     private String hora;
-    private double precio;
     private double duracionHoras;
+    private int asientosTotales;
+    private int asientosReservados;
+    private double precioBase;
 
     // Decaración del array
     private static final int MAX_VUELOS = 100;
@@ -22,13 +29,17 @@ public class Vuelo {
     private static int cantidad = 0;
 
     // Constructor
-    public Vuelo(String idVuelo, String origen, String destino, String hora, double precio, double duracionHoras) {
+    public Vuelo(String idVuelo, String origen, String destino, String fecha, String hora, double precioBase,
+            double duracionHoras, int asientosTotales) {
         this.idVuelo = idVuelo;
         this.origen = origen;
         this.destino = destino;
+        this.fecha = fecha;
         this.hora = hora;
-        this.precio = precio;
+        this.precioBase = precioBase;
         this.duracionHoras = duracionHoras;
+        this.asientosTotales = asientosTotales;
+        this.asientosReservados = 0;
     }
 
     // Getters y Setters
@@ -56,6 +67,14 @@ public class Vuelo {
         this.destino = destino;
     }
 
+    public String getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(String fecha) {
+        this.fecha = fecha;
+    }
+
     public String getHora() {
         return hora;
     }
@@ -64,12 +83,12 @@ public class Vuelo {
         this.hora = hora;
     }
 
-    public double getPrecio() {
-        return precio;
+    public double getPrecioBase() {
+        return precioBase;
     }
 
-    public void setPrecio(double precio) {
-        this.precio = precio;
+    public void setPrecioBase(double precioBase) {
+        this.precioBase = precioBase;
     }
 
     public double getDuracionHoras() {
@@ -78,6 +97,29 @@ public class Vuelo {
 
     public void setDuracionHoras(double duracionHoras) {
         this.duracionHoras = duracionHoras;
+    }
+
+    public int getAsientosTotales() {
+        return asientosTotales;
+    }
+
+    public void setAsientosTotales(int asientosTotales) {
+        if (asientosTotales < this.asientosReservados) {
+            throw new IllegalArgumentException("El total no puede ser menor que los asientos reservados.");
+        }
+        this.asientosTotales = asientosTotales;
+    }
+
+    public int getAsientosReservados() {
+        return asientosReservados;
+    }
+
+    public void setAsientosReservados(int asientosReservados) {
+        this.asientosReservados = asientosReservados;
+    }
+
+    public int getAsientosDisponibles() {
+        return asientosTotales - asientosReservados;
     }
 
     public static int getCantidad() {
@@ -108,12 +150,14 @@ public class Vuelo {
 
         String origen = Ingreso.leerString("Ingrese origen:");
         String destino = Ingreso.leerString("Ingrese destino:");
-        String fechaSalida = Ingreso.seleccionarHoraConSpinner("Ingrese la hora de salida:");
-        double precio = Ingreso.leerDoublePositivo("Ingrese precio:");
+        String fecha = Ingreso.seleccionarFechaConSpinner("Ingrese la fecha de salida:");
+        String hora = Ingreso.seleccionarHoraConSpinner("Ingrese la hora de salida:");
+        double precioBase = Ingreso.leerDoublePositivo("Ingrese precio base:");
         double duracionHoras = Ingreso.leerDoublePositivo("Ingrese duración en horas:");
-        cantidad++;
+        int asientosTotales = Ingreso.leerEnteroPositivo("Ingrese cantidad total de asientos:");
 
-        vuelos[cantidad++] = new Vuelo(idVuelo, origen, destino, fechaSalida, precio, duracionHoras);
+        vuelos[cantidad++] = new Vuelo(idVuelo, origen, destino, fecha, hora, precioBase, duracionHoras,
+                asientosTotales);
         JOptionPane.showMessageDialog(null, "Vuelo cargado correctamente.");
         return true;
     }
@@ -126,29 +170,63 @@ public class Vuelo {
 
     // Método para editar un vuelo.
     public static boolean editarVuelo() {
-        String idVueloAEditar = Ingreso.leerString("Ingrese ID del vuelo a editar:");
-        int pos = Buscador.buscarPorId(idVueloAEditar, vuelos, cantidad); // Busca el vuelo por idVuelo(Busqueda
-                                                                          // binaria)
-        if (pos >= 0) {
-            // Si el vuelo existe, solicita los nuevos datos
-            String nuevoOrigen = Ingreso.leerString("Ingrese nuevo origen:");
-            String nuevoDestino = Ingreso.leerString("Ingrese nuevo destino:");
-            String nuevaHora = Ingreso.seleccionarHoraConSpinner("Ingrese nueva hora de salida:");
-            double nuevoPrecio = Ingreso.leerDoublePositivo("Ingrese nuevo precio:");
-            double nuevaDuracion = Ingreso.leerDoublePositivo("Ingrese nueva duración en horas:");
-            // Actualiza los datos del vuelo
-            vuelos[pos].setOrigen(nuevoOrigen);
-            vuelos[pos].setDestino(nuevoDestino);
-            vuelos[pos].setHora(nuevaHora);
-            vuelos[pos].setPrecio(nuevoPrecio);
-            vuelos[pos].setDuracionHoras(nuevaDuracion);
-            JOptionPane.showMessageDialog(null, "Vuelo editado correctamente.");
-            return true;
-        }
+    String idVueloAEditar = Ingreso.leerString("Ingrese ID del vuelo a editar:");
+    int pos = Buscador.buscarPorId(idVueloAEditar, vuelos, cantidad);
+
+    if (pos < 0) {
         JOptionPane.showMessageDialog(null, "Vuelo no encontrado.");
         return false;
     }
 
+    Vuelo vuelo = vuelos[pos];
+    boolean seguirEditando = true;
+
+    while (seguirEditando) {
+        String[] opciones = {
+            "Origen",
+            "Destino",
+            "Fecha de salida",
+            "Hora de salida",
+            "Precio base",
+            "Duración en horas",
+            "Asientos totales",
+            "Finalizar edición"
+        };
+
+        int seleccion = Ingreso.nOpciones("Seleccione el campo a editar:", opciones, "Editar Vuelo");
+
+        switch (seleccion) {
+            case 0:
+                vuelo.setOrigen(Ingreso.leerString("Nuevo origen:"));
+                break;
+            case 1:
+                vuelo.setDestino(Ingreso.leerString("Nuevo destino:"));
+                break;
+            case 2:
+                vuelo.setFecha(Ingreso.seleccionarFechaConSpinner("Nueva fecha de salida:"));
+                break;
+            case 3:
+                vuelo.setHora(Ingreso.seleccionarHoraConSpinner("Nueva hora de salida:"));
+                break;
+            case 4:
+                vuelo.setPrecioBase(Ingreso.leerDoublePositivo("Nuevo precio base:"));
+                break;
+            case 5:
+                vuelo.setDuracionHoras(Ingreso.leerDoublePositivo("Nueva duración (en horas):"));
+                break;
+            case 6:
+                vuelo.setAsientosTotales(Ingreso.leerEnteroPositivo("Nueva cantidad de asientos totales:"));
+                break;
+            case 7:
+            default:
+                seguirEditando = false;
+                break;
+        }
+    }
+
+    Salida.mMensaje("Vuelo editado correctamente.", "Éxito");
+    return true;
+}
     // Método para ver todos los vuelos utilizando JTextArea y JScrollPane(Para
     // poder scrollar si es necesario)
     public static void verTodosLosVuelos() {
@@ -179,7 +257,7 @@ public class Vuelo {
         }
     }
 
-    // Devuelvo un objeto Vuelo 
+    // Método para devolver un objeto Vuelo
     public static Vuelo buscarVueloPorId(String idVuelo) {
         int pos = Buscador.buscarPorId(idVuelo, vuelos, cantidad);
         if (pos >= 0) {
@@ -196,10 +274,81 @@ public class Vuelo {
         sb.append("ID Vuelo: ").append(idVuelo).append("\n");
         sb.append("Origen: ").append(origen).append("\n");
         sb.append("Destino: ").append(destino).append("\n");
+        sb.append("Fecha: ").append(fecha).append("\n");
         sb.append("Hora de Salida: ").append(hora).append("\n");
-        sb.append("Precio: $").append(String.format("%.2f", precio)).append("\n");
+        sb.append("Precio Base: $").append(String.format("%.2f", precioBase)).append("\n");
         sb.append("Duración: ").append(duracionHoras).append(" horas\n");
+        sb.append("Asientos Disponibles: ").append(getAsientosDisponibles()).append(" de ").append(asientosTotales)
+                .append("\n");
+        sb.append("Temporada: ").append(getTemporada()).append("\n");
         sb.append("====================================");
         return sb.toString();
+    }
+
+    public String getTemporada() {
+        try {
+            LocalDate fechaVuelo = LocalDate.parse(fecha);
+
+            int dia = fechaVuelo.getDayOfMonth();
+            Month mes = fechaVuelo.getMonth();
+
+            // Temporada alta: 15 dic - 15 feb
+            if ((mes == Month.DECEMBER && dia >= 15) || (mes == Month.JANUARY)
+                    || (mes == Month.FEBRUARY && dia <= 15)) {
+                return "alta";
+            }
+
+            // Temporada alta: 1 jul - 15 ago
+            if ((mes == Month.JULY) || (mes == Month.AUGUST && dia <= 15)) {
+                return "alta";
+            }
+
+            return "baja";
+
+        } catch (Exception e) {
+            Salida.mError("Fecha inválida para determinar temporada: " + fecha, "Error");
+            return "baja";
+        }
+    }
+
+    public void reservarAsientos(int cantidad) {
+        if (cantidad <= getAsientosDisponibles()) {
+            asientosReservados += cantidad;
+        } else {
+            throw new IllegalArgumentException("No hay suficientes asientos disponibles.");
+        }
+    }
+
+    public double calcularPrecioFinal() {
+        double precio = precioBase;
+
+        String temporada = getTemporada();
+        if ("alta".equalsIgnoreCase(temporada)) {
+            precio *= 1.20;
+        } else if ("baja".equalsIgnoreCase(temporada)) {
+            precio *= 0.85;
+        }
+
+        double porcentajeDisponibles = (double) getAsientosDisponibles() / asientosTotales;
+        if (porcentajeDisponibles < 0.1) {
+            precio *= 1.30;
+        } else if (porcentajeDisponibles < 0.3) {
+            precio *= 1.15;
+        }
+
+        try {
+            LocalDate fechaSalida = LocalDate.parse(fecha);
+            long diasParaSalida = fechaSalida.toEpochDay() - LocalDate.now().toEpochDay();
+
+            if (diasParaSalida <= 7) {
+                precio *= 1.40;
+            } else if (diasParaSalida <= 30) {
+                precio *= 1.20;
+            }
+        } catch (Exception e) {
+            Salida.mError("Erro al parsear la fecha", "Error");
+        }
+
+        return precio;
     }
 }

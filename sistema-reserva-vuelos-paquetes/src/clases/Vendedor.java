@@ -8,18 +8,20 @@ import utils.inputOutputJOP.Ingreso;
 import utils.inputOutputJOP.Salida;
 
 public class Vendedor extends Persona {
+    private static int contadorId = 1;
     private String idVendedor;
-    private String condicion; // "Part time, Full time"
+    private String condicion; // "Part time, Full time, Temporal"
 
     // Decaración del array
     private static final int MAX_VENDEDORES = 100;
     private static Vendedor[] vendedores = new Vendedor[MAX_VENDEDORES];
     private static int cantidad = 0;
 
-    public Vendedor(String nombre, String apellido, String dni, String id, String condicion) {
+    public Vendedor(String nombre, String apellido, String dni, String condicion) {
         super(nombre, apellido, dni);
-        this.idVendedor = id;
+        this.idVendedor = String.format("VE%03d", contadorId++);
         this.condicion = condicion;
+
     }
 
     public String getIdVendedor() {
@@ -47,16 +49,26 @@ public class Vendedor extends Persona {
             Salida.mError("Capacidad máxima alcanzada", "Error");
         }
 
+        String dni;
+        do {
+            dni = Ingreso.leerString("Ingrese el DNI: ");
+            int pos = Buscador.buscarPorId(dni, vendedores, cantidad);
+        if (pos >= 0) {
+            Salida.mError("Este DNI ya está registrado. Ingrese uno diferente.", "DNI duplicado");
+        } else {
+            break;
+        }
+        } while (true);
+
         String nombre = Ingreso.leerString("Ingrese el nombre: ");
         String apellido = Ingreso.leerString("Ingrese apellido");
-        String dni = Ingreso.leerString("Ingrese el dni: ");
-        String id = Ingreso.leerString("Ingrese el legajo: ");
-        String condicion = Ingreso.leerString("Ingrese la condición laboral: ");
-
-        vendedores[cantidad] = new Vendedor(nombre, apellido, dni, id, condicion);
+        String[] opcionesCondicion = {"Full time", "Part time", "Temporal"};
+        int seleccion = Ingreso.nOpciones("Seleccione la condición laboral:", opcionesCondicion, "Condición Laboral");
+        String condicion = opcionesCondicion[seleccion];
+        vendedores[cantidad] = new Vendedor(nombre, apellido, dni, condicion);
         cantidad++;
 
-        Salida.mConfirmacion("Vendedor cargado correctamente", "Nuevo Vendedor");
+        Salida.mMensaje("Vendedor cargado correctamente", "Nuevo Vendedor");
     }
 
     public static void agregarVendedor(Vendedor v) {
@@ -67,6 +79,7 @@ public class Vendedor extends Persona {
         vendedores[cantidad] = v;
         cantidad++;
     }
+
 
     public static void editarVendedor() {
         String idBuscado = Ingreso.leerString("Ingrese el legajo (ID) del vendedor a editar:");
@@ -87,18 +100,44 @@ public class Vendedor extends Persona {
                 vendedor.getCondicion());
         Salida.mMensaje(mensaje, "Datos actuales del vendedor");
 
-        // Pedir nuevos datos
-        String nuevoNombre = Ingreso.leerString("Ingrese nuevo nombre (actual: " + vendedor.getNombre() + "):");
-        String nuevoApellido = Ingreso.leerString("Ingrese nuevo apellido (actual: " + vendedor.getApellido() + "):");
-        String nuevoDni = Ingreso.leerString("Ingrese nuevo DNI (actual: " + vendedor.getDni() + "):");
-        String nuevaCondicion = Ingreso
-                .leerString("Ingrese nueva condición laboral (actual: " + vendedor.getCondicion() + "):");
+        boolean continuar = true;
 
-        // Asignar nuevos datos
-        vendedor.setNombre(nuevoNombre);
-        vendedor.setApellido(nuevoApellido);
-        vendedor.setDni(nuevoDni);
-        vendedor.setCondicion(nuevaCondicion);
+        while (continuar) {
+            String[] opciones = {"Nombre", "Apellido", "DNI", "Condición laboral", "Salir"};
+            int seleccion = Ingreso.nOpciones("¿Qué desea editar?", opciones, "Editar Vendedor");
+
+            switch (seleccion) {
+                case 0: 
+                    String nuevoNombre = Ingreso.leerString("Ingrese nuevo nombre (actual: " + vendedor.getNombre() + "):");
+                    vendedor.setNombre(nuevoNombre);
+                    break;
+                case 1: 
+                    String nuevoApellido = Ingreso.leerString("Ingrese nuevo apellido (actual: " + vendedor.getApellido() + "):");
+                    vendedor.setApellido(nuevoApellido);
+                    break;
+                case 2:
+                    String nuevoDni = Ingreso.leerString("Ingrese nuevo DNI (actual: " + vendedor.getDni() + "):");
+                    int pos = Buscador.buscarPorId(nuevoDni, vendedores, cantidad);
+                    if (pos >= 0 && !vendedores[pos].getIdVendedor().equals(vendedor.getIdVendedor())) {
+                    Salida.mError("El DNI ya está registrado a otro vendedor.", "DNI Duplicado");
+                } else {
+                vendedor.setDni(nuevoDni);
+                }
+                case 3: 
+                    String[] condiciones = {"Planta Permanente", "Contratado", "Temporal"};
+                    int condSel = Ingreso.nOpciones("Seleccione nueva condición laboral:", condiciones, "Condición");
+                    vendedor.setCondicion(condiciones[condSel]);
+                    break;
+                
+                case 4: 
+                    continuar = false;
+                    break;
+                
+                default:
+                    Salida.mError("Opción incorrecta", "Error");
+                    break;
+            }
+        }
 
         Salida.mConfirmacion("Vendedor actualizado correctamente", "Edición exitosa");
     }
