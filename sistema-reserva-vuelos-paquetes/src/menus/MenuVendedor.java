@@ -4,6 +4,7 @@ import javax.swing.JOptionPane;
 
 import clases.Vendedor;
 import utils.inputOutputJOP.Ingreso;
+import utils.inputOutputJOP.Salida;
 
 public class MenuVendedor {
     public static void mostrarMenu() {
@@ -15,36 +16,26 @@ public class MenuVendedor {
                         + "3. Eliminar vendedor\n"
                         + "4. Listar todos los vendedores\n"
                         + "5. Salir";
-            opcion = Integer.parseInt(JOptionPane.showInputDialog(menu));
+            opcion = Ingreso.leerEnteroPositivo(menu);
 
             switch (opcion) {
                 case 1:
                     Vendedor.cargarVendedor();
                     break;
                 case 2:
-                // Verificar si hay vendedores registrados antes de editar
-                    if (Vendedor.getCantidad() == 0) {
-                        JOptionPane.showMessageDialog(null, "No hay vendedores registrados.");
-                        break;
-                    }
                     Vendedor.editarVendedor();
                     break;
                 case 3:
-                // Verificar si hay vendedores registrados antes de eliminar
-                    if (Vendedor.getCantidad() == 0) {
-                        JOptionPane.showMessageDialog(null, "No hay vendedores registrados.");
-                        break;
-                    }
                     Vendedor.eliminarVendedor();
                     break;
                 case 4:
                     Vendedor.listarVendedores();
                     break;
                 case 5:
-                    JOptionPane.showMessageDialog(null, "Saliendo del menú de vendedores.");
+                    Salida.mMensaje("Saliendo del menú de vendedores", "Salir");
                     break;
                 default:
-                    JOptionPane.showMessageDialog(null, "Opción no válida.");
+                    Salida.mError("Opción no válida", "Error");
             }
         } while (opcion != 5);
     }
