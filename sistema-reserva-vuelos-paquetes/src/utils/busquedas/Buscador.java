@@ -50,14 +50,14 @@ public class Buscador {
             return ((Vuelo) obj).getIdVuelo();
         if (obj instanceof Reserva)
             return ((Reserva) obj).getIdReserva();
-        if (obj instanceof Vendedor)
+        if (obj instanceof Vendedor )
             return ((Vendedor) obj).getIdVendedor();
         if (obj instanceof Persona)
             return ((Persona) obj).getDni();
         if (obj instanceof Cliente)
-        return ((Cliente) obj).getDni();
+            return ((Cliente) obj).getDni();
         if (obj instanceof PaqueteTuristico)
-               return ((PaqueteTuristico) obj).getIdPaquete();
+            return ((PaqueteTuristico) obj).getIdPaquete();
         return "";
     }
 
