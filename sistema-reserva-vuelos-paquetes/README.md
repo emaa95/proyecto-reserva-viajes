@@ -122,7 +122,7 @@ En dicho menú se puede editar, eliminar y obtener un listado de vendedores.
 **Flujo principal**:
 1. El usuario selecciona la opción `Vuelos` en el menú principal.
 2. Elige la opción `Registrar nuevo vuelo`.
-3. El sistema solicita los datos del vuelo (ID de vuelo, origen, destino, fecha, hora, precio base, duración, cantidad de asientos, etc.).
+3. El sistema solicita los datos del vuelo (origen, destino, fecha, hora, precio base, duración, cantidad de asientos, etc.).
 4. El usuario ingresa los datos.
 5. El sistema confirma que el vuelo fue agregado correctamente.
 
@@ -135,7 +135,7 @@ En dicho menú se puede editar, eliminar, obtener un listado de vuelos y buscar 
 **Flujo principal**:
 1. El usuario selecciona la opción `Paquetes` en el menú principal.
 2. Elige la opción `Registrar un paquete`.
-3. El sistema solicita los datos del paquete (ID, descripción, fecha de salida, fecha de regreso, destinos, vuelos incluidos, precio total, etc.).
+3. El sistema solicita los datos del paquete (descripción, fecha de salida, fecha de regreso, destinos, vuelos incluidos, precio total, etc.).
 4. El usuario ingresa los datos y confirma.
 5. El sistema guarda el paquete.
 
@@ -148,7 +148,7 @@ En dicho menú se puede editar, eliminar y obtener un listado de paquetes.
 **Flujo principal**:
 1. El usuario selecciona la opción `Reservas` en el menú principal.
 2. Elige la opción `Nueva reserva`.
-3. El sistema solicita los datos de la reserva (ID, DNI del cliente, legajo del vendedor, cantidad de pasajeros, selección de vuelo o paquete).
+3. El sistema solicita los datos de la reserva (DNI del cliente, legajo del vendedor, cantidad de pasajeros, selección de vuelo o paquete).
 4. El sistema genera y muestra los datos de la reserva, incluyendo precio final y método de pago.
 5. El usuario confirma.
 6. El sistema guarda la reserva.
