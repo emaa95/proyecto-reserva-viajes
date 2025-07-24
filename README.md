@@ -89,29 +89,31 @@ El programa funciona a través de menús interactivos por consola:
 
 ## 💡 Casos de Uso
 
+---
+
 ##### ✅ Caso de Uso 1: Registrar un nuevo cliente
 
 **Flujo principal**:
-1. El usuario selecciona la opción `Clientes` en el menú principal.7
-2. Elegir la opción `Registrar un cliente`.
-3. El sistema solicita los datos del cliente (nombre, apellido, DNI, teléfono, email.).
+1. El usuario selecciona la opción `Clientes` en el menú principal.
+2. Elige la opción `Registrar un cliente`.
+3. El sistema solicita los datos del cliente (nombre, apellido, DNI, teléfono, email).
 4. El usuario ingresa los datos requeridos.
 5. El sistema confirma el registro del nuevo cliente y vuelve al menú.
 
-En dicho Menú se puede editar, eliminar y obtener un listado de clientes.
+En dicho menú se puede editar, eliminar y obtener un listado de clientes.
 
 ---
 
 ##### ✅ Caso de Uso 2: Registrar un nuevo vendedor
 
 **Flujo principal**:
-1. El usuario selecciona la opción `Vendedor` en el menú principal.
-2. Elegir la opción `Registrar un vendedor`.
-3. El sistema solicita los datos del cliente (nombre, apellido, DNI, legajo, condición laboral.).
+1. El usuario selecciona la opción `Vendedores` en el menú principal.
+2. Elige la opción `Registrar un vendedor`.
+3. El sistema solicita los datos del vendedor (DNI, nombre, apellido, legajo, condición laboral).
 4. El usuario ingresa los datos requeridos.
-5. El sistema confirma el registro del nuevo cliente y vuelve al menú.
+5. El sistema confirma el registro del nuevo vendedor y vuelve al menú.
 
-En dicho Menú se puede editar, eliminar y obtener un listado de vendedores.
+En dicho menú se puede editar, eliminar y obtener un listado de vendedores.
 
 ---
 
@@ -119,25 +121,26 @@ En dicho Menú se puede editar, eliminar y obtener un listado de vendedores.
 
 **Flujo principal**:
 1. El usuario selecciona la opción `Vuelos` en el menú principal.
-2. Elegir la opción `Registrar nuevo vuelo`.
-3. El sistema solicita los datos del vuelo (idVuelo, origen, destino, fecha, hora, precio, duración de horas etc.).
+2. Elige la opción `Registrar nuevo vuelo`.
+3. El sistema solicita los datos del vuelo (ID de vuelo, origen, destino, fecha, hora, precio base, duración, cantidad de asientos, etc.).
 4. El usuario ingresa los datos.
 5. El sistema confirma que el vuelo fue agregado correctamente.
 
-En dicho menú se puede editar, eliminar, obtener un listado de vuelos y búscar vuelo por id.
+En dicho menú se puede editar, eliminar, obtener un listado de vuelos y buscar vuelos por ID.
+
 ---
 
-##### ✅ Caso de Uso 4: Registrar un paquete
+##### ✅ Caso de Uso 4: Registrar un paquete turístico
 
 **Flujo principal**:
-1. El usuario selecciona la opción `Paquete` en el menú principal.
+1. El usuario selecciona la opción `Paquetes` en el menú principal.
 2. Elige la opción `Registrar un paquete`.
-3. El sistema solicita los datos del paquete (id, descripcion, fecha de salida, fecha de regreso, destinos, vuelos, precio total etc.).
-4. El sistema solicita los datos.
-5. El usuario ingresa los datos y confirma.
-6. El sistema guarda el paquete.
+3. El sistema solicita los datos del paquete (ID, descripción, fecha de salida, fecha de regreso, destinos, vuelos incluidos, precio total, etc.).
+4. El usuario ingresa los datos y confirma.
+5. El sistema guarda el paquete.
 
 En dicho menú se puede editar, eliminar y obtener un listado de paquetes.
+
 ---
 
 ##### ✅ Caso de Uso 5: Realizar una reserva
@@ -145,22 +148,29 @@ En dicho menú se puede editar, eliminar y obtener un listado de paquetes.
 **Flujo principal**:
 1. El usuario selecciona la opción `Reservas` en el menú principal.
 2. Elige la opción `Nueva reserva`.
-3. El sistema solicita los datos de la reserva(id, dni del cliente, legajo del vendedor, carga de datos del vuelo o paquete)
-4. El sistema genera y muestra los datos de la reserva.
+3. El sistema solicita los datos de la reserva (ID, DNI del cliente, legajo del vendedor, cantidad de pasajeros, selección de vuelo o paquete).
+4. El sistema genera y muestra los datos de la reserva, incluyendo precio final y método de pago.
 5. El usuario confirma.
 6. El sistema guarda la reserva.
 
-En dicho menú se puede editar, y obtener un listado de reservas.
+En dicho menú se puede editar reservas y obtener un listado completo.
+
 ---
 
 ##### ✅ Caso de Uso 6: Menú de informes
 
 **Flujo principal**:
 1. El usuario selecciona la opción `Informes` desde el menú principal.
-2. Elige `Listar paquetes por destino`.
-3. El sistema solicita un destino para realizar la búsqueda (Ej: Miami).
-4. El sistema muestra un informe detallado con todos los paquetes que tengan coincidencia con el destino seleccionado.
-
-En dicho menú se puede obtener un listado de las reservas ordenadas por precio ascendente o descendente, búsqueda de vuelos por números, buscar reservas por estado y buscar paquetes por destino.
+2. Elige el tipo de informe deseado:
+   - `Listar reservas ordenadas por precio ascendente`
+   - `Listar reservas ordenadas por precio descendente`
+   - `Buscar vuelo por número (búsqueda binaria)`
+   - ` Listar reservas por estado  (CANCELADA, CONFIRMADA, RECHAZADA, PENDIENTE, PAGADA)`
+   - `Listar paquetes por destino`
+   - `Buscar vuelo por número`
+   - `Mostrar estado actual de todas las reservas`
+4. Por ejemplo, seleccionar la opción de listar paquetes por destino y sistema solicita un criterio de búsqueda (ejemplo: destino = Miami).
+5. El sistema muestra un informe detallado con los resultados que coincidan.
+---
 
 
