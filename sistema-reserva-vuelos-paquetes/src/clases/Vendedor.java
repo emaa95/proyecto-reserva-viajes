@@ -48,21 +48,20 @@ public class Vendedor extends Persona {
         if (cantidad >= MAX_VENDEDORES) {
             Salida.mError("Capacidad máxima alcanzada", "Error");
         }
-
         String dni;
         do {
-            dni = Ingreso.leerString("Ingrese el DNI: ");
-            int pos = Buscador.buscarPorId(dni, vendedores, cantidad);
-        if (pos >= 0) {
-            Salida.mError("Este DNI ya está registrado. Ingrese uno diferente.", "DNI duplicado");
-        } else {
-            break;
-        }
+            dni = Ingreso.leerString("Ingrese el DNI del vendedor:");
+            Vendedor v = buscarVendedorPorDni(dni);
+            if (v != null) {
+                Salida.mError("El Vendedor ya se encuentra registrado: " + v.getNombre() + " " + v.getApellido(), "Error");
+                break;
+            } 
+
         } while (true);
 
         String nombre = Ingreso.leerString("Ingrese el nombre: ");
         String apellido = Ingreso.leerString("Ingrese apellido");
-        String[] opcionesCondicion = {"Full time", "Part time", "Temporal"};
+        String[] opcionesCondicion = { "Full time", "Part time", "Temporal" };
         int seleccion = Ingreso.nOpciones("Seleccione la condición laboral:", opcionesCondicion, "Condición Laboral");
         String condicion = opcionesCondicion[seleccion];
         vendedores[cantidad] = new Vendedor(nombre, apellido, dni, condicion);
@@ -124,7 +123,7 @@ public class Vendedor extends Persona {
                 vendedor.setDni(nuevoDni);
                 }
                 case 3: 
-                    String[] condiciones = {"Planta Permanente", "Contratado", "Temporal"};
+                    String[] condiciones = { "Full time", "Part time", "Temporal" };
                     int condSel = Ingreso.nOpciones("Seleccione nueva condición laboral:", condiciones, "Condición");
                     vendedor.setCondicion(condiciones[condSel]);
                     break;
@@ -139,7 +138,7 @@ public class Vendedor extends Persona {
             }
         }
 
-        Salida.mConfirmacion("Vendedor actualizado correctamente", "Edición exitosa");
+        Salida.mMensaje("Vendedor actualizado correctamente", "Edición exitosa");
     }
 
     public static void eliminarVendedor() {
@@ -177,5 +176,14 @@ public class Vendedor extends Persona {
         }
         return null;
     }
+
+    public static Vendedor buscarVendedorPorDni(String dniBuscado) {
+    for (int i = 0; i < cantidad; i++) {
+        if (vendedores[i].getDni().equals(dniBuscado)) {
+            return vendedores[i]; 
+        }
+    }
+    return null; 
+}
 
 }

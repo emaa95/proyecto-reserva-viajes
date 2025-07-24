@@ -11,6 +11,7 @@ import utils.inputOutputJOP.Salida;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+
 public class Reserva {
     private static int contadorId = 1;
     private String idReserva;
@@ -24,6 +25,16 @@ public class Reserva {
     private EstadoReserva estado;
     private double precioFinal;
     private LocalDateTime fechaCreacion;
+    
+    public enum FormaDePago {
+        EFECTIVO,
+        TARJETA_CREDITO,
+        TARJETA_DEBITO,
+        TRANSFERENCIA,
+        MERCADO_PAGO
+    }
+
+    private FormaDePago formaDePago;
 
     // Declaración de array Reservas
     private static final int MAX_RESERVAS = 100;
@@ -32,7 +43,7 @@ public class Reserva {
 
     public Reserva(Cliente cliente, Vendedor vendedor, TipoServicio tipo,
             Vuelo vueloIda, Vuelo vueloVuelta, PaqueteTuristico paquete,
-            int cantidadPasajeros, LocalDateTime fechaCreacion) {
+            int cantidadPasajeros, LocalDateTime fechaCreacion, FormaDePago formaDePago) {
 
         this.idReserva = String.format("R%03d", contadorId++);
         this.cliente = cliente;
@@ -45,7 +56,7 @@ public class Reserva {
         this.estado = EstadoReserva.PENDIENTE;
         this.precioFinal = 0.0;
         this.fechaCreacion = (fechaCreacion != null) ? fechaCreacion : LocalDateTime.now();
-
+        this.formaDePago = (formaDePago != null) ? formaDePago : FormaDePago.EFECTIVO;
     }
 
     // Getters y Setters
@@ -125,6 +136,13 @@ public class Reserva {
         return fechaCreacion;
     }
 
+    public FormaDePago getFormaDePago() {
+        return formaDePago;
+    }
+
+    public void setFormaDePago(FormaDePago formaDePago) {
+        this.formaDePago = formaDePago;
+    }
 
     // Métodos
     public double calcularTotal() {
@@ -233,11 +251,20 @@ public class Reserva {
                     Salida.mError("Paquete no encontrado. Intente nuevamente.", "Error");
                 }
             } while (paquete == null);
+
+             Vuelo vueloDelPaquete = paquete.getVuelo();
+            if (vueloDelPaquete != null) {
+        if (vueloDelPaquete.getAsientosDisponibles() < cantidadPasajeros) {
+            Salida.mError("No hay suficientes asientos disponibles en el vuelo del paquete.", "Error");
+            return; 
+        }
+        vueloDelPaquete.reservarAsientos(cantidadPasajeros);
+    }
         }
 
 
         Reserva reservaTemporal = new Reserva(cliente, vendedor, tipoSeleccionado, vueloIda, vueloVuelta, paquete,
-                cantidadPasajeros, null);
+                cantidadPasajeros, null, null);
 
         double totalDolares = reservaTemporal.calcularTotal();
 
@@ -250,6 +277,13 @@ public class Reserva {
             double precioPesos = totalDolares * precioDolar;
             Salida.mMensaje(String.format("Precio final en pesos: $%.2f", precioPesos), "Precio de la Reserva");
         }
+
+        FormaDePago[] formas = FormaDePago.values();
+        String[] opcionesPago = new String[formas.length];
+        for (int i = 0; i < formas.length; i++) opcionesPago[i] = formas[i].name();
+
+        int selPago = Ingreso.nOpciones("Seleccione forma de pago:", opcionesPago, "Forma de Pago");
+        reservaTemporal.setFormaDePago(formas[selPago]);
 
         reservaTemporal.setPrecioFinal(totalDolares);
 
@@ -294,10 +328,12 @@ public class Reserva {
                         "Modificar estado", "Salir" };
             } else if (estado == EstadoReserva.RESERVADA) {
                 opciones = new String[] { "Modificar cantidad de pasajeros", "Modificar estado", "Salir" };
-            } else {
-                // CONFIRMADA, PAGADA, EN_CURSO, SUSPENDIDA
+            } else if (estado == EstadoReserva.PAGADA ||  estado == EstadoReserva.EN_CURSO) {
                 opciones = new String[] { "Modificar estado", "Salir" };
+            } else {
+                opciones = new String[] { "Salir" };
             }
+
 
             int seleccion = Ingreso.nOpciones("Seleccione acción para la reserva (" + estado + "):", opciones,
                     "Modificar Reserva");
@@ -305,20 +341,31 @@ public class Reserva {
 
             switch (opcion) {
                 case "Modificar cantidad de pasajeros":
-                    int nuevaCantidad = Ingreso.leerEnteroPositivo("Ingrese nueva cantidad de pasajeros:");
-                    reserva.setCantidadPasajeros(nuevaCantidad);
-                    Salida.mMensaje("Cantidad de pasajeros actualizada.", "OK");
-                    break;
+                     int nuevaCantidad = Ingreso.leerEnteroPositivo("Ingrese nueva cantidad de pasajeros:");
+    // Actualizamos asientos usando el método centralizado
+    reserva.actualizarAsientos(nuevaCantidad, reserva.getVueloIda(), reserva.getVueloVuelta());
+    Salida.mMensaje("Cantidad de pasajeros y asientos actualizados.", "OK");
+    break;
 
                 case "Modificar vuelos o paquete":
+                    int cantidadPasajeros = reserva.getCantidadPasajeros();
                     if (reserva.getTipo() == TipoServicio.VUELO) {
                         Vuelo ida = null;
+                        if (reserva.vueloIda != null) {
+                        reserva.vueloIda.liberarAsientos(cantidadPasajeros);
+                    }
+                    if (reserva.vueloVuelta != null) {
+                        reserva.vueloVuelta.liberarAsientos(cantidadPasajeros);
+                    }
                         do {
                             String idIda = Ingreso.leerString("Nuevo ID de vuelo de ida:");
                             ida = Vuelo.buscarVueloPorId(idIda);
                             if (ida == null) {
-                                Salida.mError("Vuelo no encontrado.", "Error");
-                            }
+                            Salida.mError("Vuelo no encontrado.", "Error");
+                        } else if (ida.getAsientosDisponibles() < cantidadPasajeros) {
+                            Salida.mError("No hay suficientes asientos disponibles.", "Error");
+                            ida = null;
+                        }
                         } while (ida == null);
                         reserva.vueloIda = ida;
 
@@ -330,10 +377,14 @@ public class Reserva {
                                 do {
                                     String idVuelta = Ingreso.leerString("Nuevo ID de vuelo de vuelta:");
                                     vuelta = Vuelo.buscarVueloPorId(idVuelta);
-                                    if (vuelta == null) {
-                                        Salida.mError("Vuelo no encontrado.", "Error");
-                                    }
+                                      if (vuelta == null) {
+                                    Salida.mError("Vuelo no encontrado.", "Error");
+                                } else if (vuelta.getAsientosDisponibles() < cantidadPasajeros) {
+                                    Salida.mError("No hay suficientes asientos disponibles.", "Error");
+                                    vuelta = null;
+                                }
                                 } while (vuelta == null);
+                                vuelta.reservarAsientos(cantidadPasajeros);
                                 reserva.vueloVuelta = vuelta;
                             } else {
                                 reserva.vueloVuelta = null;
@@ -418,7 +469,7 @@ public class Reserva {
         sb.append("Cantidad de Pasajeros: ").append(cantidadPasajeros).append("\n");
         sb.append("Estado: ").append(estado).append("\n");
         sb.append("Precio Final (USD): $").append(String.format("%.2f", precioFinal)).append("\n");
-
+        sb.append("Forma de Pago: ").append(formaDePago.name()).append("\n");
         return sb.toString();
     }
 
@@ -517,4 +568,30 @@ public class Reserva {
         }
         JOptionPane.showMessageDialog(null, sb.toString(), "Estado de Reservas", JOptionPane.INFORMATION_MESSAGE);
         }
+
+    private void actualizarAsientos(int nuevaCantidadPasajeros, Vuelo nuevoVueloIda, Vuelo nuevoVueloVuelta) {
+    // Liberar asientos anteriores
+    if (vueloIda != null) {
+        vueloIda.liberarAsientos(cantidadPasajeros);
+    }
+    if (vueloVuelta != null) {
+        vueloVuelta.liberarAsientos(cantidadPasajeros);
+    }
+
+    // Actualizar vuelos
+    this.vueloIda = nuevoVueloIda;
+    this.vueloVuelta = nuevoVueloVuelta;
+
+    // Reservar asientos nuevos
+    if (vueloIda != null) {
+        vueloIda.reservarAsientos(nuevaCantidadPasajeros);
+    }
+    if (vueloVuelta != null) {
+        vueloVuelta.reservarAsientos(nuevaCantidadPasajeros);
+    }
+
+    // Actualizar cantidad
+    this.cantidadPasajeros = nuevaCantidadPasajeros;
+}
+
 }

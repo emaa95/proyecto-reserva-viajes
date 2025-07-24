@@ -13,6 +13,7 @@ import java.time.Month;
 import javax.swing.JOptionPane;
 
 public class Vuelo {
+     private static int contadorId = 1;
     private String idVuelo;
     private String origen;
     private String destino;
@@ -29,9 +30,9 @@ public class Vuelo {
     private static int cantidad = 0;
 
     // Constructor
-    public Vuelo(String idVuelo, String origen, String destino, String fecha, String hora, double precioBase,
+    public Vuelo(String origen, String destino, String fecha, String hora, double precioBase,
             double duracionHoras, int asientosTotales) {
-        this.idVuelo = idVuelo;
+        this.idVuelo = String.format("V%03d", contadorId++);
         this.origen = origen;
         this.destino = destino;
         this.fecha = fecha;
@@ -136,12 +137,6 @@ public class Vuelo {
 
     // Método para cargar un vuelo.
     public static boolean cargarVuelo() {
-        String idVuelo = Ingreso.leerString("Ingrese ID de vuelo:");
-        int pos = Buscador.buscarPorId(idVuelo, vuelos, cantidad);
-        if (pos >= 0) {
-            JOptionPane.showMessageDialog(null, "Ya existe un vuelo con ese ID.");
-            return false;
-        }
         // Verificar tamaño de array antes de pedir los datos al usuario
         if (cantidad >= MAX_VUELOS) {
             JOptionPane.showMessageDialog(null, "No se pueden cargar más vuelos. Límite alcanzado.");
@@ -156,7 +151,7 @@ public class Vuelo {
         double duracionHoras = Ingreso.leerDoublePositivo("Ingrese duración en horas:");
         int asientosTotales = Ingreso.leerEnteroPositivo("Ingrese cantidad total de asientos:");
 
-        vuelos[cantidad++] = new Vuelo(idVuelo, origen, destino, fecha, hora, precioBase, duracionHoras,
+        vuelos[cantidad++] = new Vuelo(origen, destino, fecha, hora, precioBase, duracionHoras,
                 asientosTotales);
         JOptionPane.showMessageDialog(null, "Vuelo cargado correctamente.");
         return true;
@@ -307,8 +302,9 @@ public class Vuelo {
 
         } catch (Exception e) {
             Salida.mError("Fecha inválida para determinar temporada: " + fecha, "Error");
-            return "baja";
+            return null;
         }
+        
     }
 
     public void reservarAsientos(int cantidad) {
@@ -318,6 +314,16 @@ public class Vuelo {
             throw new IllegalArgumentException("No hay suficientes asientos disponibles.");
         }
     }
+
+    public void liberarAsientos(int cantidad) {
+    if (cantidad <= 0) return;
+
+    asientosReservados -= cantidad;
+
+    if (asientosReservados < 0) {
+        asientosReservados = 0;
+    }
+}
 
     public double calcularPrecioFinal() {
         double precio = precioBase;

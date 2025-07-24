@@ -2,6 +2,8 @@ package clases;
 
 import javax.swing.JOptionPane;
 
+import utils.inputOutputJOP.Ingreso;
+
 public class Persona {
     private String nombre;
     private String apellido;
@@ -20,17 +22,19 @@ public class Persona {
     }
 
     // Método para cargar una nueva persona
-    public static boolean cargarPersona(String nombre, String apellido, String dni) {
+    public void cargarPersona() {
         if (cantidad < MAX_PERSONAS) {
+
+            String nombre = Ingreso.leerString("Ingrese nombre:");
+            String apellido = Ingreso.leerString("Ingrese apellido:");
+            String dni = Ingreso.leerString("Ingrese DNI:");
             personas[cantidad++] = new Persona(nombre, apellido, dni);
-            ordenarPorDni();
-            // JOptionPane.showMessageDialog(null, "Persona cargada correctamente."); Se
-            // elimina mensaje, aparecerá en método cargarCliente
-            return true;
+     
+            JOptionPane.showMessageDialog(null, "Persona cargada correctamente.");
+            
         }
-        // JOptionPane.showMessageDialog(null, "No se pudo cargar la persona. Límite
-        // alcanzado."); Se elimina mensaje, aparecerá en método cargarCliente
-        return false;
+        JOptionPane.showMessageDialog(null, "No se pudo cargar la persona." );
+        
     }
 
     // Método para editar una persona por DNI usando búsqueda binaria
