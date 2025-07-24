@@ -2,6 +2,7 @@ package menus;
 
 import javax.swing.JOptionPane;
 import clases.Reserva;
+import utils.inputOutputJOP.Salida;
 
 public class MenuReservas {
 
@@ -22,10 +23,10 @@ public class MenuReservas {
                     Reserva.verTodasLasReservas();
                     break;
                 case 4:
-                    JOptionPane.showMessageDialog(null, "Saliendo del menú de reservas...");
+                    Salida.mMensaje("Saliendo del menú de reservas...", "Salir");
                     break;
                 default:
-                    JOptionPane.showMessageDialog(null, "Opción inválida. Intente de nuevo.");
+                    Salida.mError("Opción inválida. Intente de nuevo.", "Error");
             }
 
         } while (opcion != 4);
@@ -46,12 +47,12 @@ public class MenuReservas {
 
         String input = JOptionPane.showInputDialog(menu + "\nSeleccione una opción:");
         
-        if (input == null) return 4; // Si presiona "Cancelar"
+        if (input == null) return 4; 
 
         try {
             return Integer.parseInt(input);
         } catch (NumberFormatException e) {
-            return -1; // Opción inválida
+            return -1; 
         }
     }
 }
