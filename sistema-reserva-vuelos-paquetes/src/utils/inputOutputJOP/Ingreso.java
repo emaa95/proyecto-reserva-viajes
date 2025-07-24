@@ -170,14 +170,14 @@ public class Ingreso {
 
     // Método para seleccionar una fecha con un JSpinner
     public static String seleccionarFechaConSpinner(String mensaje) {
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     sdf.setLenient(false);
     String fechaFormateada = null;
     boolean repetir;
     do {
         repetir = false;
         JSpinner spinner = new JSpinner(new SpinnerDateModel());
-        spinner.setEditor(new JSpinner.DateEditor(spinner, "dd/MM/yyyy"));
+        spinner.setEditor(new JSpinner.DateEditor(spinner, "yyyy-MM-dd"));
         int opcion = JOptionPane.showOptionDialog(
             null,
             new Object[]{mensaje, spinner},
